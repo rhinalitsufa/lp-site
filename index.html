@@ -1,242 +1,114 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Player</title>
-  <style>
-    :root{
-      --bg:#000;
-      --fg:#fff;
-      --muted:rgba(255,255,255,.75);
-      --bar:rgba(255,255,255,.25);
-      --barFill:#fff;
-      --cta:#1e90ff;
-    }
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
-    .wrap{height:100%;display:grid;place-items:center;}
-    .player{
-      width:min(420px, 96vw);
-      aspect-ratio: 9 / 16;
-      position:relative;
-      border-radius:20px;
-      overflow:hidden;
-      background:#000;
-      box-shadow:0 12px 40px rgba(0,0,0,.6);
-    }
-    video{
-      width:100%;height:100%;
-      object-fit:cover;
-      display:block;
-      background:#000;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動画LP</title>
 
-    /* overlay */
-    .overlay{
-      position:absolute;inset:0;
-      display:grid;align-content:space-between;
-      pointer-events:none;
-    }
-    .top{
-      padding:14px 14px 0;
-      display:flex;justify-content:space-between;gap:10px;
-      font-size:13px;color:var(--muted);
-      text-shadow:0 2px 10px rgba(0,0,0,.6);
-    }
-    .title{
-      position:absolute;left:0;right:0;top:16px;
-      text-align:center;font-weight:700;
-      text-shadow:0 2px 12px rgba(0,0,0,.7);
-      padding:0 16px;
-      pointer-events:none;
-    }
+<style>
+body {
+  margin:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
+  font-family:sans-serif;
+}
 
-    /* center play */
-    .centerBtn{
-      position:absolute;inset:0;
-      display:grid;place-items:center;
-      pointer-events:auto;
-    }
-    .play{
-      width:74px;height:74px;border-radius:999px;
-      background:rgba(0,0,0,.55);
-      border:1px solid rgba(255,255,255,.22);
-      backdrop-filter: blur(6px);
-      display:grid;place-items:center;
-      cursor:pointer;
-      transform:translateY(6px);
-    }
-    .play svg{width:28px;height:28px;fill:#fff;margin-left:4px}
-    .hint{
-      margin-top:10px;
-      font-size:12px;color:var(--muted);
-      text-align:center;
-      text-shadow:0 2px 10px rgba(0,0,0,.65);
-    }
+.player {
+  width:90%;
+  max-width:400px;
+  position:relative;
+}
 
-    /* bottom controls */
-    .bottom{
-      padding:0 14px 14px;
-      pointer-events:none;
-    }
-    .progress{
-      height:4px;border-radius:999px;background:var(--bar);
-      overflow:hidden;
-    }
-    .fill{
-      width:0%;height:100%;background:var(--barFill);
-    }
-    .meta{
-      margin-top:10px;
-      display:flex;justify-content:space-between;align-items:center;
-      font-size:12px;color:var(--muted);
-      text-shadow:0 2px 10px rgba(0,0,0,.6);
-    }
+video {
+  width:100%;
+  border-radius:10px;
+}
 
-    /* gate (stop + CTA) */
-    .gate{
-      position:absolute;inset:0;
-      display:none;
-      place-items:center;
-      background:rgba(0,0,0,.72);
-      backdrop-filter: blur(3px);
-      padding:22px;
-      text-align:center;
-    }
-    .card{
-      width:min(320px, 92%);
-      background:rgba(20,20,20,.75);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;
-      padding:18px 16px;
-      box-shadow:0 14px 50px rgba(0,0,0,.55);
-    }
-    .card h2{margin:0 0 8px;font-size:16px}
-    .card p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.5}
-    .cta{
-      display:inline-block;
-      width:100%;
-      padding:12px 14px;
-      border-radius:12px;
-      background:var(--cta);
-      color:#fff;
-      font-weight:700;
-      text-decoration:none;
-      pointer-events:auto;
-    }
-    .small{
-      margin-top:10px;
-      font-size:11px;color:rgba(255,255,255,.6);
-    }
-  </style>
+.overlay {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.playBtn {
+  width:70px;
+  height:70px;
+  background:rgba(0,0,0,0.6);
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+}
+
+.playBtn:after {
+  content:'▶';
+  font-size:30px;
+}
+
+#cta {
+  display:none;
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:15px 20px;
+  font-size:18px;
+  background:#1e90ff;
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="player" id="player">
-      <!-- 動画URLを差し替え -->
-      <video id="v" playsinline preload="metadata">
-        <source src="VIDEO_URL" type="video/mp4">
-      </video>
 
-      <div class="title">これ最後まで見れないやつ…</div>
+<div class="player">
 
-      <div class="overlay">
-        <div class="top">
-          <div id="status">再生準備中</div>
-          <div id="timer">0:00</div>
-        </div>
+<video id="video" playsinline>
+  <source src="https://raw.githubusercontent.com/rhinalitsufa/lp-site/main/_talkv_wqGH5O6HXg_0m4K5RH5y8sE9ktNBkiHK_talkv_high.mov" type="video/mp4">
+</video>
 
-        <div class="bottom">
-          <div class="progress"><div class="fill" id="fill"></div></div>
-          <div class="meta">
-            <span id="info">タップで再生</span>
-            <span id="remain">残り --:--</span>
-          </div>
-        </div>
-      </div>
+<div class="overlay" id="overlay">
+  <div class="playBtn" onclick="startVideo()"></div>
+</div>
 
-      <!-- 再生ボタン（中央） -->
-      <div class="centerBtn" id="center">
-        <div>
-          <div class="play" id="playBtn" aria-label="play">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-          <div class="hint">タップして再生</div>
-        </div>
-      </div>
+<button id="cta" onclick="location.href='https://lit.link/'">
+  続きはこちら
+</button>
 
-      <!-- 途中停止 → CTA -->
-      <div class="gate" id="gate">
-        <div class="card">
-          <h2>続きは別ページで</h2>
-          <p>視聴の続き・関連コンテンツはこちらから。</p>
-          <!-- 誘導先URLを差し替え -->
-          <a class="cta" href="CTA_URL" rel="noopener noreferrer">続きはこちら</a>
-          <div class="small">※リンク先で内容をご確認ください</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
+</div>
 
 <script>
-  const v = document.getElementById('v');
-  const playBtn = document.getElementById('playBtn');
-  const center = document.getElementById('center');
-  const fill = document.getElementById('fill');
-  const timer = document.getElementById('timer');
-  const remain = document.getElementById('remain');
-  const status = document.getElementById('status');
-  const info = document.getElementById('info');
-  const gate = document.getElementById('gate');
+const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const cta = document.getElementById("cta");
 
-  // 何秒で止めるか（好みで調整）
-  const STOP_AT = 8; // 秒
+// 再生開始
+function startVideo(){
+  video.play();
+  overlay.style.display = "none";
+}
 
-  const fmt = (s) => {
-    if (!isFinite(s)) return '--:--';
-    const m = Math.floor(s/60);
-    const r = Math.floor(s%60).toString().padStart(2,'0');
-    return `${m}:${r}`;
-  };
-
-  function updateUI(){
-    const cur = v.currentTime || 0;
-    const dur = v.duration || 0;
-    timer.textContent = fmt(cur);
-    if (dur > 0) {
-      fill.style.width = `${Math.min(100, (cur/dur)*100)}%`;
-      remain.textContent = `残り ${fmt(Math.max(0, dur-cur))}`;
-      status.textContent = v.paused ? '一時停止' : '再生中';
-      info.textContent = v.paused ? 'タップで再生' : '再生中';
-    }
+// 8秒で止める
+video.addEventListener("timeupdate", function() {
+  if (video.currentTime >= 8) {
+    video.pause();
+    cta.style.display = "block";
   }
-
-  function start(){
-    v.play().catch(()=>{});
-  }
-
-  playBtn.addEventListener('click', () => start());
-  v.addEventListener('click', () => {
-    if (gate.style.display === 'grid') return;
-    if (v.paused) start(); else v.pause();
-  });
-
-  v.addEventListener('loadedmetadata', updateUI);
-  v.addEventListener('timeupdate', () => {
-    updateUI();
-    if (v.currentTime >= STOP_AT) {
-      v.pause();
-      gate.style.display = 'grid';
-      center.style.display = 'none';
-    }
-  });
-
-  v.addEventListener('play', () => { center.style.display = 'none'; updateUI(); });
-  v.addEventListener('pause', () => { if (gate.style.display !== 'grid') center.style.display = 'grid'; updateUI(); });
-
-  // 初期表示
-  updateUI();
+});
 </script>
+
 </body>
 </html>
