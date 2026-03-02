@@ -21,8 +21,6 @@
       font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
       overflow:hidden;
     }
-
-    /* 背景 */
     .stage{
       position:fixed; inset:0;
       display:grid;
@@ -31,7 +29,6 @@
                   linear-gradient(#3a3a3a, #2a2a2a);
     }
 
-    /* 右上：ダウンロード風 */
     .dl{
       position:fixed; top:18px; right:18px;
       width:56px; height:56px;
@@ -44,7 +41,6 @@
     }
     .dl svg{width:26px;height:26px;fill:#fff}
 
-    /* 左下：X */
     .leftBrand{
       position:fixed; left:20px; bottom:42px;
       width:44px; height:44px;
@@ -56,7 +52,6 @@
     }
     .leftBrand span{font-weight:800; font-size:18px}
 
-    /* 右側：SNSアイコン（ダミー） */
     .rightStack{
       position:fixed; right:18px; bottom:80px;
       display:flex; flex-direction:column; gap:14px;
@@ -73,7 +68,6 @@
     }
     .pill span{font-weight:800}
 
-    /* 中央：プレビューカード */
     .previewWrap{
       width:min(420px, 92vw);
       display:grid;
@@ -96,8 +90,6 @@
       display:block;
       background:#000;
     }
-
-    /* 上の× */
     .close{
       position:absolute;
       top:8px; right:8px;
@@ -112,7 +104,6 @@
       z-index:4;
     }
 
-    /* ローディング */
     .loading{
       position:absolute; inset:0;
       display:grid; place-items:center;
@@ -130,13 +121,23 @@
     }
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* 下の大きいCTA */
+    /* CTA（3秒遅延でフェードイン） */
     .ctaBar{
       position:fixed;
       left:0; right:0; bottom:28px;
       display:grid;
       place-items:center;
       padding:0 18px;
+
+      opacity:0;
+      transform: translateY(10px);
+      pointer-events:none;
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .ctaBar.show{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
     }
     .ctaBtn{
       width:min(560px, 92vw);
@@ -157,7 +158,6 @@
       text-align:center;
     }
 
-    /* “途中まで→続き”のゲート（あなたの今の機能） */
     .gate{
       position:fixed; inset:0;
       display:none;
@@ -194,14 +194,11 @@
 <body>
 
   <div class="stage">
-    <!-- 中央プレビュー -->
     <div class="previewWrap">
-
       <div class="previewCard">
         <div class="close" title="close">×</div>
 
         <video id="v" playsinline muted preload="metadata">
-          <!-- ✅動画（Pages版URL） -->
           <source src="https://rhinalitsufa.github.io/lp-site/ssstik.io_1683269598753%20%28video-converter.com%29.mp4" type="video/mp4">
         </video>
 
@@ -212,35 +209,30 @@
     </div>
   </div>
 
-  <!-- 右上：DL風（押しても何もしないダミー。必要ならリンク化） -->
   <div class="dl" title="download">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M12 3a1 1 0 0 1 1 1v9.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42l2.3 2.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z"/>
     </svg>
   </div>
 
-  <!-- 左下：X -->
   <div class="leftBrand" title="X"><span>X</span></div>
 
-  <!-- 右側：SNS（ダミー） -->
   <div class="rightStack">
     <div class="pill" title="Instagram"><span>IG</span></div>
     <div class="pill" title="TikTok"><span>TT</span></div>
   </div>
 
-  <!-- 下のCTA -->
-  <div class="ctaBar">
-    <button class="ctaBtn" id="ctaBtn">残り7分👉 アプリで見る</button>
+  <!-- ✅ 3秒遅延表示するCTA -->
+  <div class="ctaBar" id="ctaBar">
+    <button class="ctaBtn" id="ctaBtn">読み込み中…</button>
     <div class="ctaSub">※リンク先で内容をご確認ください</div>
   </div>
 
-  <!-- 途中停止→ゲート -->
   <div class="gate" id="gate">
     <div class="gateCard">
       <h2>続きはこちら</h2>
       <p>続き・関連コンテンツは下のボタンから。</p>
 
-      <!-- ✅広告リンク：ここに入れる -->
       <a class="gateLink"
          href="https://ad-nex.com/u/aiacgdx3w5rq"
          target="_blank"
@@ -257,17 +249,51 @@
   const v = document.getElementById('v');
   const loading = document.getElementById('loading');
   const gate = document.getElementById('gate');
+
+  const ctaBar = document.getElementById('ctaBar');
   const ctaBtn = document.getElementById('ctaBtn');
 
-  // ✅ 何秒で止めるか（好みで調整）
-  const STOP_AT = 8;
+  // ✅ ② STOP_ATを7秒に変更
+  const STOP_AT = 7;
+
+  // ✅ 広告リンク
+  const AD_URL = 'https://ad-nex.com/u/aiacgdx3w5rq';
+
+  // ✅ ① ボタンを3秒遅延表示
+  const CTA_SHOW_DELAY_MS = 3000;
+
+  // ✅ ③ 文言A/Bテスト（訪問者ごとに固定）
+  // 誤認を避けて “安全寄り” の候補にしてる
+  const COPY_VARIANTS = [
+    '残り7分👉 アプリで見る',
+    '続きはここから👇',
+    'この先をチェックする'
+  ];
+
+  function pickVariant(){
+    const key = 'ab_copy_v1';
+    const saved = localStorage.getItem(key);
+    if (saved) return saved;
+
+    const chosen = COPY_VARIANTS[Math.floor(Math.random() * COPY_VARIANTS.length)];
+    localStorage.setItem(key, chosen);
+    return chosen;
+  }
+
+  // 文言セット
+  ctaBtn.textContent = pickVariant();
 
   // ローディング消す
   v.addEventListener('loadeddata', () => loading.style.display = 'none');
   v.addEventListener('canplay', () => loading.style.display = 'none');
 
-  // “あのLP風”に：最初は勝手に再生を試みる（失敗してもOK）
+  // 最初は再生を試みる（失敗してもOK）
   v.play().catch(()=>{});
+
+  // 3秒後にCTA表示
+  setTimeout(() => {
+    ctaBar.classList.add('show');
+  }, CTA_SHOW_DELAY_MS);
 
   // 途中停止でゲート
   v.addEventListener('timeupdate', () => {
@@ -277,10 +303,9 @@
     }
   });
 
-  // 下の青ボタン：広告へ
+  // CTAクリック：リファラ切りで遷移（404対策）
   ctaBtn.addEventListener('click', () => {
-    // 404対策（リファラ切り）
-    window.open('https://ad-nex.com/u/aiacgdx3w5rq', '_blank', 'noopener,noreferrer');
+    window.open(AD_URL, '_blank', 'noopener,noreferrer');
   });
 </script>
 </body>
