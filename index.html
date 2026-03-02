@@ -1,383 +1,143 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#2f2f2f" />
-  <title>LP</title>
-  <style>
-    :root{
-      --bg:#2f2f2f;      /* videyっぽい灰 */
-      --fg:#fff;
-      --muted:rgba(255,255,255,.75);
-      --card:#1d1d1d;
-      --blue:#1976ff;    /* CTA */
-      --shadow:0 18px 50px rgba(0,0,0,.45);
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
-      overflow:hidden;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LP</title>
 
-    /* 背景に動画を薄く敷く（videyっぽく） */
-    .bgVideo{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      filter: blur(10px) brightness(.55);
-      transform: scale(1.05);
-    }
-    .shade{
-      position:fixed;
-      inset:0;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,.15), rgba(0,0,0,.35));
-      pointer-events:none;
-    }
+<style>
+body {
+  margin: 0;
+  background: #000;
+  overflow: hidden;
+}
 
-    /* 右側SNSアイコン */
-    .rightRail{
-      position:fixed;
-      right:16px;
-      bottom: calc(90px + var(--safe-bottom));
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      z-index:30;
-    }
-    .socialBtn{
-      width:54px;height:54px;
-      border-radius:14px;
-      display:grid;place-items:center;
-      background: rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .socialBtn img{ width:30px;height:30px; }
+/* 背景ぼかし動画 */
+.bg-video {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(30px) brightness(0.4);
+}
 
-    /* 左下のXっぽいボタン */
-    .xBadge{
-      position:fixed;
-      left:18px;
-      bottom: calc(18px + var(--safe-bottom));
-      width:58px;height:58px;
-      border-radius:16px;
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.12);
-      display:grid;place-items:center;
-      box-shadow: var(--shadow);
-      z-index:30;
-    }
-    .xBadge span{ font-weight:900; font-size:26px; letter-spacing:.02em; }
+/* メイン動画 */
+.main-video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-    /* 右上ダウンロード風 */
-    .dlBtn{
-      position:fixed;
-      right:18px;
-      top: calc(18px + var(--safe-top));
-      width:58px;height:58px;
-      border-radius:14px;
-      background: rgba(30,120,255,.92);
-      display:grid;place-items:center;
-      box-shadow: var(--shadow);
-      z-index:30;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .dlBtn svg{ width:26px;height:26px; }
+/* 右UI */
+.right-ui {
+  position: absolute;
+  right: 10px;
+  top: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: white;
+  align-items: center;
+}
 
-    /* 中央カード */
-    .centerWrap{
-      position:fixed;
-      inset:0;
-      display:grid;
-      place-items:center;
-      padding: 72px 18px 120px;
-      z-index:20;
-    }
-    .card{
-      width:min(360px, 86vw);
-      aspect-ratio: 9/16;
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-    .thumb{
-      position:absolute; inset:0;
-      background:#111;
-      display:grid; place-items:center;
-    }
-    .thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      filter: brightness(.92);
-    }
+.icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
 
-    /* 左下のプロフィールっぽい */
-    .profile{
-      position:absolute;
-      left:12px;
-      bottom:62px;
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .avatar{
-      width:42px;height:42px;border-radius:999px;
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.14);
-      overflow:hidden;
-    }
-    .avatar img{ width:100%;height:100%;object-fit:cover; }
-    .pText{
-      font-size:12px;
-      color:rgba(255,255,255,.92);
-      text-shadow: 0 6px 16px rgba(0,0,0,.45);
-      line-height:1.3;
-    }
+/* CTAボタン */
+.cta {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #007bff;
+  color: white;
+  padding: 16px 28px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-decoration: none;
+}
 
-    /* カード内の紫っぽいボタン風（見た目だけ） */
-    .cardCtaFake{
-      position:absolute;
-      left:12px; right:12px;
-      bottom:14px;
-      height:42px;
-      border-radius:14px;
-      border:2px solid rgba(180,120,255,.65);
-      background: rgba(0,0,0,.25);
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      font-size:13px;
-      color:rgba(255,255,255,.92);
-    }
+/* プログレスバー */
+.progress {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 5px;
+  background: rgba(255,255,255,0.2);
+}
 
-    /* ぐるぐる */
-    .spinner{
-      position:fixed;
-      left:50%;
-      top:55%;
-      transform: translate(-50%,-50%);
-      width:52px;height:52px;
-      border-radius:999px;
-      border:5px solid rgba(255,255,255,.18);
-      border-top-color: rgba(255,255,255,.85);
-      animation: spin 1s linear infinite;
-      z-index:25;
-      opacity:.75;
-    }
-    @keyframes spin{ to{ transform: translate(-50%,-50%) rotate(360deg); } }
-
-    /* 下の青CTA */
-    .bottomCta{
-      position:fixed;
-      left:50%;
-      bottom: calc(26px + var(--safe-bottom));
-      transform: translateX(-50%);
-      background: var(--blue);
-      color:#fff;
-      text-decoration:none;
-      font-weight:900;
-      padding: 14px 22px;
-      border-radius:12px;
-      box-shadow: var(--shadow);
-      z-index:40;
-      white-space:nowrap;
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-    }
-    .bottomCta:active{ transform: translateX(-50%) scale(.99); }
-
-    /* 下にうっすら動画プレイヤーっぽいバー（任意） */
-    .miniPlayer{
-      position:fixed;
-      left:0; right:0;
-      bottom:0;
-      padding: 10px 12px calc(10px + var(--safe-bottom));
-      background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,0));
-      z-index:15;
-      pointer-events:none;
-    }
-    .miniRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      opacity:.7;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .miniBar{
-      flex:1;
-      height:4px;
-      border-radius:999px;
-      background: rgba(255,255,255,.18);
-      overflow:hidden;
-      position:relative;
-    }
-    .miniBar > i{
-      position:absolute; inset:0 auto 0 0;
-      width:0%;
-      background: rgba(255,255,255,.75);
-    }
-  </style>
+.bar {
+  height: 100%;
+  width: 0%;
+  background: #ff2d75;
+}
+</style>
 </head>
 
 <body>
-  <!-- 背景動画 -->
-  <video id="bgv" class="bgVideo" playsinline muted preload="metadata">
-    <source src="./video.mp4" type="video/mp4">
-  </video>
-  <div class="shade"></div>
 
-  <!-- 右上：DLっぽい -->
-  <div class="dlBtn" id="dlBtn" title="download">
-    <svg viewBox="0 0 24 24" fill="none">
-      <path d="M12 3v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <path d="M8 11l4 4 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M5 21h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </div>
+<!-- 背景 -->
+<video class="bg-video" id="bg" muted autoplay loop playsinline></video>
 
-  <!-- 中央カード -->
-  <div class="centerWrap">
-    <div class="card">
-      <div class="thumb">
-        <!-- サムネ差し替えたいならここを好きな画像に（なければそのままでOK） -->
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='1280'%3E%3Crect width='100%25' height='100%25' fill='%23111111'/%3E%3Ctext x='50%25' y='50%25' fill='%23ffffff' font-size='42' text-anchor='middle' dominant-baseline='middle'%3Epreview%3C/text%3E%3C/svg%3E" alt="preview">
-      </div>
+<!-- メイン -->
+<video class="main-video" id="video" muted autoplay playsinline></video>
 
-      <div class="profile">
-        <div class="avatar">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%23333333'/%3E%3Ctext x='50%25' y='54%25' fill='%23ffffff' font-size='28' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt="avatar">
-        </div>
-        <div class="pText">
-          ここに一言テキスト<br>（任意で変更OK）
-        </div>
-      </div>
+<!-- 右UI -->
+<div class="right-ui">
+  <div class="icon">❤</div>
+  <div>805</div>
 
-      <div class="cardCtaFake">▶ アプリで見る</div>
-    </div>
-  </div>
+  <div class="icon">💾</div>
+  <div>579</div>
 
-  <!-- ぐるぐる -->
-  <div class="spinner" id="spinner"></div>
+  <div class="icon">💬</div>
+  <div>180</div>
+</div>
 
-  <!-- 右下SNS -->
-  <div class="rightRail">
-    <div class="socialBtn" id="igBtn" title="Instagram">
-      <img alt="ig" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23ff4aa0'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='30' text-anchor='middle' dominant-baseline='middle'%3EIG%3C/text%3E%3C/svg%3E">
-    </div>
-    <div class="socialBtn" id="tkBtn" title="TikTok">
-      <img alt="tk" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='28' text-anchor='middle' dominant-baseline='middle'%3ETK%3C/text%3E%3C/svg%3E">
-    </div>
-  </div>
+<!-- CTA -->
+<a class="cta" href="https://ad-nex.com/u/aiacgdx3w5rq">
+  続きはアプリで見る
+</a>
 
-  <!-- 左下 X -->
-  <div class="xBadge"><span>X</span></div>
-
-  <!-- 下の青CTA -->
-  <a class="bottomCta" id="cta" href="#" rel="noopener">残り7分後アプリで見る</a>
-
-  <!-- うっすらプレイヤーっぽい -->
-  <div class="miniPlayer">
-    <div class="miniRow">
-      <span>▶</span>
-      <div class="miniBar"><i id="miniBar"></i></div>
-      <span id="miniTime">0:00</span>
-    </div>
-  </div>
+<!-- プログレス -->
+<div class="progress">
+  <div class="bar" id="bar"></div>
+</div>
 
 <script>
-  /**
-   * =========================
-   * 設定（ここだけ触ればOK）
-   * =========================
-   */
-  const CONFIG = {
-    videoSrc: "./video.mp4",
-    ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
-    stopAtSeconds: 0,        // ★止めたくないなら 0（これで止まらない）
-    loop: true,              // ★ループさせる
-    startMuted: true,
-    spinnerMs: 1200          // ぐるぐる表示時間（見せ方用）
-  };
+const VIDEO_URL = "./video.mp4"; // ←ここだけ変える
 
-  const bgv = document.getElementById("bgv");
-  const cta = document.getElementById("cta");
-  const spinner = document.getElementById("spinner");
-  const miniBar = document.getElementById("miniBar");
-  const miniTime = document.getElementById("miniTime");
+const v = document.getElementById("video");
+const bg = document.getElementById("bg");
+const bar = document.getElementById("bar");
 
-  // CTA
-  cta.href = CONFIG.ctaUrl;
+v.src = VIDEO_URL;
+bg.src = VIDEO_URL;
 
-  // video
-  // sourceで指定してるので src 代入は不要だが、念のため合わせる
-  bgv.muted = !!CONFIG.startMuted;
-  bgv.loop = !!CONFIG.loop;
-  bgv.playsInline = true;
+/* プログレス */
+v.addEventListener("timeupdate", () => {
+  const p = (v.currentTime / v.duration) * 100;
+  bar.style.width = p + "%";
+});
 
-  // ぐるぐる：一定時間後に消す（演出）
-  setTimeout(() => { spinner.style.display = "none"; }, CONFIG.spinnerMs);
-
-  // iPhone対策：ユーザー操作で再生を確実に
-  const tryPlay = () => bgv.play().catch(()=>{});
-  document.addEventListener("click", tryPlay, { passive:true });
-
-  // 進捗表示（下のバー）
-  function fmt(sec){
-    sec = Math.max(0, sec|0);
-    const m = Math.floor(sec/60);
-    const s = sec%60;
-    return `${m}:${String(s).padStart(2,"0")}`;
+/* タップで再生/停止 */
+document.body.addEventListener("click", () => {
+  if (v.paused) {
+    v.play();
+  } else {
+    v.pause();
   }
-  bgv.addEventListener("timeupdate", () => {
-    const dur = bgv.duration || 0;
-    const cur = bgv.currentTime || 0;
-
-    // stopAtSeconds（0なら無効）
-    if (CONFIG.stopAtSeconds > 0 && cur >= CONFIG.stopAtSeconds) {
-      bgv.pause();
-      // 止める仕様にしたい場合はここでモーダル表示等を入れる
-    }
-
-    const pct = dur ? (cur/dur)*100 : 0;
-    miniBar.style.width = `${pct}%`;
-    miniTime.textContent = fmt(cur);
-  });
-
-  // 右上DLっぽいボタン（押したらCTAへ）
-  document.getElementById("dlBtn").addEventListener("click", () => {
-    location.href = CONFIG.ctaUrl;
-  });
-
-  // 右のSNSボタン（押したらCTAへ）
-  document.getElementById("igBtn").addEventListener("click", () => {
-    location.href = CONFIG.ctaUrl;
-  });
-  document.getElementById("tkBtn").addEventListener("click", () => {
-    location.href = CONFIG.ctaUrl;
-  });
-
-  // 読み込み開始
-  // メタデータ読み込み後に一度再生トライ（環境によりブロックされる→クリックで再生）
-  bgv.addEventListener("loadedmetadata", tryPlay);
+});
 </script>
+
 </body>
 </html>
