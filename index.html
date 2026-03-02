@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
-  <title>LP Video</title>
+  <meta name="theme-color" content="#2f2f2f" />
+  <title>LP</title>
   <style>
     :root{
-      --bg:#000;
+      --bg:#2f2f2f;      /* videyっぽい灰 */
       --fg:#fff;
       --muted:rgba(255,255,255,.75);
-      --accent:#ff2d75;
-      --accent2:#ff4aa0;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --card:#1d1d1d;
+      --blue:#1976ff;    /* CTA */
+      --shadow:0 18px 50px rgba(0,0,0,.45);
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
@@ -22,463 +22,362 @@
       margin:0;
       background:var(--bg);
       color:var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
       overflow:hidden;
     }
 
-    .stage{
-      position:relative;
-      width:100%;
-      height:100vh;
-      height:100dvh;
-      background:#000;
-    }
-    video{
+    /* 背景に動画を薄く敷く（videyっぽく） */
+    .bgVideo{
+      position:fixed;
+      inset:0;
       width:100%;
       height:100%;
-      object-fit:contain;
-      background:#000;
-      display:block;
+      object-fit:cover;
+      filter: blur(10px) brightness(.55);
+      transform: scale(1.05);
     }
-
-    /* Top bar */
-    .topbar{
-      position:absolute;
-      top:0; left:0; right:0;
-      padding: calc(10px + var(--safe-top)) 12px 10px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+    .shade{
+      position:fixed;
+      inset:0;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.15), rgba(0,0,0,.35));
       pointer-events:none;
-      z-index:10;
     }
-    .topbar .left, .topbar .right{
-      display:flex; gap:10px; align-items:center;
-      pointer-events:auto;
-    }
-    .icon-btn{
-      width:36px; height:36px;
-      border-radius:999px;
-      background:rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.12);
-      display:grid; place-items:center;
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .icon-btn:active{ transform:scale(.98); }
 
-    /* Right rail */
-    .right-rail{
-      position:absolute;
-      right:10px;
-      top: 22%;
+    /* 右側SNSアイコン */
+    .rightRail{
+      position:fixed;
+      right:16px;
+      bottom: calc(90px + var(--safe-bottom));
       display:flex;
       flex-direction:column;
       gap:14px;
-      align-items:center;
-      pointer-events:none;
-      z-index:10;
+      z-index:30;
     }
-    .rail-item{
-      pointer-events:auto;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      font-size:12px;
+    .socialBtn{
+      width:54px;height:54px;
+      border-radius:14px;
+      display:grid;place-items:center;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    .rail-item .bubble{
-      width:46px; height:46px;
-      border-radius:999px;
-      background:rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.12);
-      display:grid; place-items:center;
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow);
-      cursor:pointer;
-    }
-    .rail-item .count{ color:var(--muted); font-weight:700; }
+    .socialBtn img{ width:30px;height:30px; }
 
-    /* Bottom */
-    .bottombar{
-      position:absolute;
-      left:0; right:0; bottom:0;
-      padding: 10px 12px calc(12px + var(--safe-bottom));
-      pointer-events:none;
-      background: linear-gradient(to top, rgba(0,0,0,.60), rgba(0,0,0,0));
-      z-index:10;
+    /* 左下のXっぽいボタン */
+    .xBadge{
+      position:fixed;
+      left:18px;
+      bottom: calc(18px + var(--safe-bottom));
+      width:58px;height:58px;
+      border-radius:16px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow);
+      z-index:30;
     }
-    .progress-wrap{
-      pointer-events:auto;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
+    .xBadge span{ font-weight:900; font-size:26px; letter-spacing:.02em; }
+
+    /* 右上ダウンロード風 */
+    .dlBtn{
+      position:fixed;
+      right:18px;
+      top: calc(18px + var(--safe-top));
+      width:58px;height:58px;
+      border-radius:14px;
+      background: rgba(30,120,255,.92);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow);
+      z-index:30;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .time{
-      font-variant-numeric: tabular-nums;
-      font-size:12px;
-      color:var(--muted);
-      min-width:70px;
-      text-align:right;
+    .dlBtn svg{ width:26px;height:26px; }
+
+    /* 中央カード */
+    .centerWrap{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding: 72px 18px 120px;
+      z-index:20;
     }
-    .progress{
+    .card{
+      width:min(360px, 86vw);
+      aspect-ratio: 9/16;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      box-shadow: var(--shadow);
       position:relative;
-      height:4px;
-      flex:1;
-      border-radius:999px;
-      background: rgba(255,255,255,.22);
       overflow:hidden;
     }
-    .progress .bar{
-      position:absolute; inset:0 auto 0 0;
-      width:0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    .thumb{
+      position:absolute; inset:0;
+      background:#111;
+      display:grid; place-items:center;
     }
-    .progress .dot{
-      position:absolute;
-      top:50%;
-      width:10px; height:10px;
-      border-radius:999px;
-      background:#fff;
-      transform: translate(-50%,-50%);
-      left:0%;
-      box-shadow: 0 6px 18px rgba(255,255,255,.18);
-      opacity:.95;
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter: brightness(.92);
     }
 
-    .cta-row{
+    /* 左下のプロフィールっぽい */
+    .profile{
+      position:absolute;
+      left:12px;
+      bottom:62px;
       display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-      pointer-events:none;
-    }
-    .cta{
-      pointer-events:auto;
-      display:inline-flex;
-      align-items:center;
       gap:10px;
-      padding:14px 18px;
+      align-items:center;
+    }
+    .avatar{
+      width:42px;height:42px;border-radius:999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      overflow:hidden;
+    }
+    .avatar img{ width:100%;height:100%;object-fit:cover; }
+    .pText{
+      font-size:12px;
+      color:rgba(255,255,255,.92);
+      text-shadow: 0 6px 16px rgba(0,0,0,.45);
+      line-height:1.3;
+    }
+
+    /* カード内の紫っぽいボタン風（見た目だけ） */
+    .cardCtaFake{
+      position:absolute;
+      left:12px; right:12px;
+      bottom:14px;
+      height:42px;
+      border-radius:14px;
+      border:2px solid rgba(180,120,255,.65);
+      background: rgba(0,0,0,.25);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      font-size:13px;
+      color:rgba(255,255,255,.92);
+    }
+
+    /* ぐるぐる */
+    .spinner{
+      position:fixed;
+      left:50%;
+      top:55%;
+      transform: translate(-50%,-50%);
+      width:52px;height:52px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border:5px solid rgba(255,255,255,.18);
+      border-top-color: rgba(255,255,255,.85);
+      animation: spin 1s linear infinite;
+      z-index:25;
+      opacity:.75;
+    }
+    @keyframes spin{ to{ transform: translate(-50%,-50%) rotate(360deg); } }
+
+    /* 下の青CTA */
+    .bottomCta{
+      position:fixed;
+      left:50%;
+      bottom: calc(26px + var(--safe-bottom));
+      transform: translateX(-50%);
+      background: var(--blue);
       color:#fff;
       text-decoration:none;
       font-weight:900;
+      padding: 14px 22px;
+      border-radius:12px;
       box-shadow: var(--shadow);
+      z-index:40;
+      white-space:nowrap;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
-      white-space:nowrap;
     }
-    .cta small{
-      display:block;
-      font-weight:800;
-      opacity:.9;
-      font-size:12px;
+    .bottomCta:active{ transform: translateX(-50%) scale(.99); }
+
+    /* 下にうっすら動画プレイヤーっぽいバー（任意） */
+    .miniPlayer{
+      position:fixed;
+      left:0; right:0;
+      bottom:0;
+      padding: 10px 12px calc(10px + var(--safe-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,0));
+      z-index:15;
+      pointer-events:none;
     }
-    .subline{
-      pointer-events:auto;
+    .miniRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      opacity:.7;
       font-size:12px;
       color:var(--muted);
-      line-height:1.4;
-      max-width:56%;
     }
-
-    /* Gate modal */
-    .gate{
-      position:absolute;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 16px;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(10px);
-      z-index:30;
-    }
-    .gate.show{ display:flex; }
-    .card{
-      width:min(520px, 100%);
-      background: rgba(18,18,18,.92);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      padding:18px;
-      box-shadow: var(--shadow);
-    }
-    .card h2{ margin:0 0 8px; font-size:18px; }
-    .card p{ margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.6; }
-    .btns{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
-    .btn{
-      appearance:none;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      color:#fff;
-      padding:10px 14px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:800;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn.primary{
-      border:none;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-    }
-
-    /* Tap layer */
-    .tap-layer{
-      position:absolute;
-      inset:0;
-      z-index:5; /* videoの上、UIの下 */
-    }
-
-    .hint{
-      position:absolute;
-      left:50%;
-      top:52%;
-      transform: translate(-50%,-50%);
-      padding:10px 12px;
+    .miniBar{
+      flex:1;
+      height:4px;
       border-radius:999px;
-      background: rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.9);
-      font-size:13px;
-      backdrop-filter: blur(8px);
-      opacity:0;
-      transition: opacity .25s ease;
-      pointer-events:none;
-      z-index:12;
+      background: rgba(255,255,255,.18);
+      overflow:hidden;
+      position:relative;
     }
-    .hint.show{ opacity:1; }
+    .miniBar > i{
+      position:absolute; inset:0 auto 0 0;
+      width:0%;
+      background: rgba(255,255,255,.75);
+    }
   </style>
 </head>
+
 <body>
-  <div class="stage">
-    <!-- video -->
-    <video id="v" playsinline muted preload="metadata">
-      <source src="./video.mp4" type="video/mp4">
-    </video>
+  <!-- 背景動画 -->
+  <video id="bgv" class="bgVideo" playsinline muted preload="metadata">
+    <source src="./video.mp4" type="video/mp4">
+  </video>
+  <div class="shade"></div>
 
-    <!-- tap to play/pause -->
-    <div class="tap-layer" id="tapLayer" aria-label="tap to play/pause"></div>
-
-    <!-- top -->
-    <div class="topbar">
-      <div class="left">
-        <div class="icon-btn" id="btnBack" title="Back" aria-label="Back">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="right">
-        <div class="icon-btn" id="btnShare" title="Share" aria-label="Share">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M16 6l-4-4-4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 2v14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- right rail -->
-    <div class="right-rail">
-      <div class="rail-item">
-        <div class="bubble" id="btnLike" aria-label="Like">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 21s-7-4.35-9.5-8.3C.6 9.3 2.1 6.2 5.4 5.3c1.8-.5 3.7.1 4.9 1.5 1.2-1.4 3.1-2 4.9-1.5 3.3.9 4.8 4 2.9 7.4C19 16.65 12 21 12 21z"
-              stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="count" id="likeCount">805</div>
-      </div>
-
-      <div class="rail-item">
-        <div class="bubble" id="btnSave" aria-label="Save">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="count" id="saveCount">579</div>
-      </div>
-
-      <div class="rail-item">
-        <div class="bubble" id="btnComment" aria-label="Comment">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4v8z"
-              stroke="white" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="count" id="commentCount">180</div>
-      </div>
-
-      <div class="rail-item">
-        <div class="bubble" id="btnMute" aria-label="Mute/Unmute">
-          <svg id="muteIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M11 5L6 9H3v6h3l5 4V5z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M19 9l-4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M15 9l4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="count" id="muteLabel">mute</div>
-      </div>
-    </div>
-
-    <div class="hint" id="hint">タップで再生 / 一時停止</div>
-
-    <!-- bottom -->
-    <div class="bottombar">
-      <div class="progress-wrap">
-        <div class="progress">
-          <div class="bar" id="bar"></div>
-          <div class="dot" id="dot"></div>
-        </div>
-        <div class="time" id="time">0:00 / 0:00</div>
-      </div>
-
-      <div class="cta-row">
-        <a class="cta" id="cta" href="https://ad-nex.com/u/aiacgdx3w5rq" rel="noopener">
-          続きを見る
-          <small>インストールして視聴</small>
-        </a>
-        <div class="subline">
-          ※ 続きはボタンから。<br/>
-          タップで再生 / 右のボタンでミュート切替
-        </div>
-      </div>
-    </div>
-
-    <!-- gate -->
-    <div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Continue dialog">
-      <div class="card">
-        <h2>続きの視聴はこちら</h2>
-        <p>続きは下のボタンから移動してください。</p>
-        <div class="btns">
-          <button class="btn" id="btnClose">閉じる</button>
-          <button class="btn primary" id="btnGo">続きへ進む</button>
-        </div>
-      </div>
-    </div>
-
+  <!-- 右上：DLっぽい -->
+  <div class="dlBtn" id="dlBtn" title="download">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 3v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 11l4 4 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5 21h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
   </div>
 
-  <script>
-    const CONFIG = {
-      stopAtSeconds: 5.0, // 0で無効
-      showGateOnStop: true,
-      startMuted: true,
-      tapHintMs: 1400,
-      fakeCounts: { like: 805, save: 579, comment: 180 }
-    };
+  <!-- 中央カード -->
+  <div class="centerWrap">
+    <div class="card">
+      <div class="thumb">
+        <!-- サムネ差し替えたいならここを好きな画像に（なければそのままでOK） -->
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='1280'%3E%3Crect width='100%25' height='100%25' fill='%23111111'/%3E%3Ctext x='50%25' y='50%25' fill='%23ffffff' font-size='42' text-anchor='middle' dominant-baseline='middle'%3Epreview%3C/text%3E%3C/svg%3E" alt="preview">
+      </div>
 
-    const v = document.getElementById("v");
-    const bar = document.getElementById("bar");
-    const dot = document.getElementById("dot");
-    const timeEl = document.getElementById("time");
-    const tapLayer = document.getElementById("tapLayer");
-    const hint = document.getElementById("hint");
-    const gate = document.getElementById("gate");
-    const btnClose = document.getElementById("btnClose");
-    const btnGo = document.getElementById("btnGo");
+      <div class="profile">
+        <div class="avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%23333333'/%3E%3Ctext x='50%25' y='54%25' fill='%23ffffff' font-size='28' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt="avatar">
+        </div>
+        <div class="pText">
+          ここに一言テキスト<br>（任意で変更OK）
+        </div>
+      </div>
 
-    // counts
-    document.getElementById("likeCount").textContent = CONFIG.fakeCounts.like;
-    document.getElementById("saveCount").textContent = CONFIG.fakeCounts.save;
-    document.getElementById("commentCount").textContent = CONFIG.fakeCounts.comment;
+      <div class="cardCtaFake">▶ アプリで見る</div>
+    </div>
+  </div>
 
-    // init
-    v.muted = !!CONFIG.startMuted;
-    v.playsInline = true;
-    v.preload = "metadata";
+  <!-- ぐるぐる -->
+  <div class="spinner" id="spinner"></div>
 
-    function fmtTime(sec){
-      if(!isFinite(sec) || sec < 0) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${String(s).padStart(2,"0")}`;
+  <!-- 右下SNS -->
+  <div class="rightRail">
+    <div class="socialBtn" id="igBtn" title="Instagram">
+      <img alt="ig" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23ff4aa0'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='30' text-anchor='middle' dominant-baseline='middle'%3EIG%3C/text%3E%3C/svg%3E">
+    </div>
+    <div class="socialBtn" id="tkBtn" title="TikTok">
+      <img alt="tk" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='28' text-anchor='middle' dominant-baseline='middle'%3ETK%3C/text%3E%3C/svg%3E">
+    </div>
+  </div>
+
+  <!-- 左下 X -->
+  <div class="xBadge"><span>X</span></div>
+
+  <!-- 下の青CTA -->
+  <a class="bottomCta" id="cta" href="#" rel="noopener">残り7分後アプリで見る</a>
+
+  <!-- うっすらプレイヤーっぽい -->
+  <div class="miniPlayer">
+    <div class="miniRow">
+      <span>▶</span>
+      <div class="miniBar"><i id="miniBar"></i></div>
+      <span id="miniTime">0:00</span>
+    </div>
+  </div>
+
+<script>
+  /**
+   * =========================
+   * 設定（ここだけ触ればOK）
+   * =========================
+   */
+  const CONFIG = {
+    videoSrc: "./video.mp4",
+    ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
+    stopAtSeconds: 0,        // ★止めたくないなら 0（これで止まらない）
+    loop: true,              // ★ループさせる
+    startMuted: true,
+    spinnerMs: 1200          // ぐるぐる表示時間（見せ方用）
+  };
+
+  const bgv = document.getElementById("bgv");
+  const cta = document.getElementById("cta");
+  const spinner = document.getElementById("spinner");
+  const miniBar = document.getElementById("miniBar");
+  const miniTime = document.getElementById("miniTime");
+
+  // CTA
+  cta.href = CONFIG.ctaUrl;
+
+  // video
+  // sourceで指定してるので src 代入は不要だが、念のため合わせる
+  bgv.muted = !!CONFIG.startMuted;
+  bgv.loop = !!CONFIG.loop;
+  bgv.playsInline = true;
+
+  // ぐるぐる：一定時間後に消す（演出）
+  setTimeout(() => { spinner.style.display = "none"; }, CONFIG.spinnerMs);
+
+  // iPhone対策：ユーザー操作で再生を確実に
+  const tryPlay = () => bgv.play().catch(()=>{});
+  document.addEventListener("click", tryPlay, { passive:true });
+
+  // 進捗表示（下のバー）
+  function fmt(sec){
+    sec = Math.max(0, sec|0);
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${m}:${String(s).padStart(2,"0")}`;
+  }
+  bgv.addEventListener("timeupdate", () => {
+    const dur = bgv.duration || 0;
+    const cur = bgv.currentTime || 0;
+
+    // stopAtSeconds（0なら無効）
+    if (CONFIG.stopAtSeconds > 0 && cur >= CONFIG.stopAtSeconds) {
+      bgv.pause();
+      // 止める仕様にしたい場合はここでモーダル表示等を入れる
     }
-    function setProgress(){
-      const dur = v.duration || 0;
-      const cur = v.currentTime || 0;
-      const pct = dur ? (cur / dur) * 100 : 0;
-      bar.style.width = `${pct}%`;
-      dot.style.left = `${pct}%`;
-      timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
-    }
 
-    // hint
-    setTimeout(() => hint.classList.add("show"), 200);
-    setTimeout(() => hint.classList.remove("show"), CONFIG.tapHintMs);
+    const pct = dur ? (cur/dur)*100 : 0;
+    miniBar.style.width = `${pct}%`;
+    miniTime.textContent = fmt(cur);
+  });
 
-    // tap play/pause
-    tapLayer.addEventListener("click", async () => {
-      if(v.paused){
-        try{ await v.play(); }catch(e){}
-      } else {
-        v.pause();
-      }
-    });
+  // 右上DLっぽいボタン（押したらCTAへ）
+  document.getElementById("dlBtn").addEventListener("click", () => {
+    location.href = CONFIG.ctaUrl;
+  });
 
-    // mute toggle
-    const btnMute = document.getElementById("btnMute");
-    const muteLabel = document.getElementById("muteLabel");
-    function syncMuteUI(){
-      muteLabel.textContent = v.muted ? "mute" : "sound";
-      const icon = document.getElementById("muteIcon");
-      icon.innerHTML = v.muted
-        ? `<path d="M11 5L6 9H3v6h3l5 4V5z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-           <path d="M19 9l-4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-           <path d="M15 9l4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>`
-        : `<path d="M11 5L6 9H3v6h3l5 4V5z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-           <path d="M16 8a5 5 0 010 8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-           <path d="M18.5 5.5a9 9 0 010 13" stroke="white" stroke-width="2" stroke-linecap="round"/>`;
-    }
-    btnMute.addEventListener("click", () => {
-      v.muted = !v.muted;
-      syncMuteUI();
-      v.play().catch(()=>{});
-    });
-    syncMuteUI();
+  // 右のSNSボタン（押したらCTAへ）
+  document.getElementById("igBtn").addEventListener("click", () => {
+    location.href = CONFIG.ctaUrl;
+  });
+  document.getElementById("tkBtn").addEventListener("click", () => {
+    location.href = CONFIG.ctaUrl;
+  });
 
-    // gate
-    function openGate(){ gate.classList.add("show"); }
-    function closeGate(){ gate.classList.remove("show"); }
-    btnClose.addEventListener("click", closeGate);
-    btnGo.addEventListener("click", () => location.href = "https://ad-nex.com/u/aiacgdx3w5rq");
-
-    // back/share
-    document.getElementById("btnBack").addEventListener("click", () => history.back());
-    document.getElementById("btnShare").addEventListener("click", async () => {
-      const shareData = { title: document.title, text: "Check this out", url: location.href };
-      try{
-        if(navigator.share) await navigator.share(shareData);
-        else alert("共有できない端末です");
-      }catch(e){}
-    });
-
-    // progress + stop
-    v.addEventListener("timeupdate", () => {
-      setProgress();
-      if(CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds){
-        v.pause();
-        if(CONFIG.showGateOnStop) openGate();
-      }
-    });
-
-    v.addEventListener("loadedmetadata", setProgress);
-    v.addEventListener("ended", setProgress);
-
-    // iOS scroll prevention
-    document.addEventListener("touchmove", (e) => {
-      if(gate.classList.contains("show")) return;
-      e.preventDefault();
-    }, { passive:false });
-  </script>
+  // 読み込み開始
+  // メタデータ読み込み後に一度再生トライ（環境によりブロックされる→クリックで再生）
+  bgv.addEventListener("loadedmetadata", tryPlay);
+</script>
 </body>
 </html>
