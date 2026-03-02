@@ -635,3 +635,13 @@
 </script>
 </body>
 </html>
+/* 右UIがクリックできない原因（上に被さる）を強制的に解決 */
+.actionsRail, .rightRail, .dlBtn, .bottomCta {
+  pointer-events: auto;
+}
+.centerWrap, .spinner, .shade, .miniPlayer {
+  pointer-events: none;
+}
+.card, .cardX {
+  pointer-events: auto; /* カードは操作できるように */
+}
