@@ -400,17 +400,16 @@
      *  設定（ここだけ変えればOK）
      * =========================
      */
-    const CONFIG = {
-　　　const CONFIG = {
-  　　videoSrc: "https://rhinalitsufa.github.io/lp-site/video.mp4",
-  　　ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
-  　　stopAtSeconds: 5.0,                    // ★この秒で自動停止（0で無効）
-      showGateOnStop: true,                      // 停止時にモーダル出す
-      loopBeforeStop: false,                     // stopAtSecondsより前でループしたい場合
-      startMuted: true,                          // 初期ミュート
-      tapHintMs: 1400,                           // 初回ヒント表示
-      fakeCounts: { like: 805, save: 579, comment: 180 } // 表示用（任意）
-    };
+const CONFIG = {
+  videoSrc: "./video.mp4",
+  ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
+  stopAtSeconds: 5.0,
+  showGateOnStop: true,
+  loopBeforeStop: false,
+  startMuted: true,
+  tapHintMs: 1400,
+  fakeCounts: { like: 805, save: 579, comment: 180 }
+};
 
     const v = document.getElementById("v");
     const bar = document.getElementById("bar");
