@@ -4,56 +4,77 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LP</title>
+
   <style>
-    body{margin:0;background:#000;}
-    video{
-      width:100%;
-      height:100vh;
-      object-fit:contain;
-      background:#000;
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
     }
-    .cta{
-      position:fixed;
-      bottom:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:#ff2d75;
-      color:#fff;
-      padding:15px 25px;
-      border-radius:30px;
-      font-weight:bold;
-      text-decoration:none;
+
+    .stage {
+      position: relative;
+      height: 100vh;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .cta {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff2d75;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 30px;
+      font-weight: bold;
+      text-decoration: none;
     }
   </style>
 </head>
+
 <body>
 
-<video id="v" playsinline muted preload="metadata">
-  <source src="./video.mp4" type="video/mp4">
-</video>
+<div class="stage">
 
-<a href="https://ad-nex.com/u/aiacgdx3w5rq" class="cta">
-  続きを見る
-</a>
+  <!-- 動画 -->
+  <video id="v" playsinline muted preload="metadata" controls>
+    <source src="./video.mp4" type="video/mp4">
+  </video>
+
+  <!-- CTA -->
+  <a href="https://ad-nex.com/u/aiacgdx3w5rq" class="cta">
+    続きを見る
+  </a>
+
+</div>
 
 <script>
-const video = document.getElementById("v");
+const v = document.getElementById("v");
 
-// タップで再生
-document.body.addEventListener("click", () => {
-  video.play();
-});
-
-// 5秒で停止
-video.addEventListener("timeupdate", () => {
-  if (video.currentTime > 5) {
-    video.pause();
+// タップで再生（iPhone対策）
+document.addEventListener("click", () => {
+  if (v.paused) {
+    v.play().catch(()=>{});
   }
 });
 
-// エラー確認
-video.addEventListener("error", () => {
-  alert("動画エラー（変換ミスの可能性）");
+// 5秒で停止
+v.addEventListener("timeupdate", () => {
+  if (v.currentTime >= 5) {
+    v.pause();
+  }
+});
+
+// エラー検知（原因特定用）
+v.addEventListener("error", () => {
+  alert("動画エラー：コーデック（H.265など）かファイル問題");
 });
 </script>
 
