@@ -1,143 +1,637 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LP</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#2f2f2f" />
+  <title>LP</title>
 
-<style>
-body {
-  margin: 0;
-  background: #000;
-  overflow: hidden;
-}
+  <style>
+    :root{
+      --bg:#2f2f2f;
+      --fg:#fff;
+      --muted:rgba(255,255,255,.75);
+      --card:rgba(0,0,0,.35);
+      --blue:#1976ff;
+      --pink:#ff2d75;
+      --shadow:0 18px 50px rgba(0,0,0,.45);
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+      overflow:hidden;
+    }
 
-/* 背景ぼかし動画 */
-.bg-video {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(30px) brightness(0.4);
-}
+    /* 背景ぼかし動画 */
+    .bgVideo{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter: blur(12px) brightness(.55);
+      transform: scale(1.05);
+    }
+    .shade{
+      position:fixed;
+      inset:0;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.10), rgba(0,0,0,.35));
+      pointer-events:none;
+    }
 
-/* メイン動画 */
-.main-video {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+    /* 右上ダウンロード風 */
+    .dlBtn{
+      position:fixed;
+      right:18px;
+      top: calc(18px + var(--safe-top));
+      width:58px;height:58px;
+      border-radius:14px;
+      background: rgba(30,120,255,.92);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow);
+      z-index:30;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dlBtn svg{ width:26px;height:26px; }
 
-/* 右UI */
-.right-ui {
-  position: absolute;
-  right: 10px;
-  top: 30%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  color: white;
-  align-items: center;
-}
+    /* 中央カード */
+    .centerWrap{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding: 72px 18px 120px;
+      z-index:20;
+    }
+    .card{
+      width:min(360px, 86vw);
+      aspect-ratio: 9/16;
+      background: var(--card);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .thumb{
+      position:absolute; inset:0;
+      background:#111;
+      display:grid; place-items:center;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter: brightness(.92);
+    }
+    .cardX{
+      position:absolute;
+      right:10px; top:10px;
+      width:34px;height:34px;
+      border-radius:999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid; place-items:center;
+      font-size:18px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-.icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
+    /* プロフィールっぽい */
+    .profile{
+      position:absolute;
+      left:12px;
+      bottom:62px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .avatar{
+      width:42px;height:42px;border-radius:999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      overflow:hidden;
+    }
+    .avatar img{ width:100%;height:100%;object-fit:cover; }
+    .pText{
+      font-size:12px;
+      color:rgba(255,255,255,.92);
+      text-shadow: 0 6px 16px rgba(0,0,0,.45);
+      line-height:1.35;
+      max-width: 240px;
+    }
 
-/* CTAボタン */
-.cta {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #007bff;
-  color: white;
-  padding: 16px 28px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-decoration: none;
-}
+    /* カード内ボタン風（見た目） */
+    .cardCtaFake{
+      position:absolute;
+      left:12px; right:12px;
+      bottom:14px;
+      height:42px;
+      border-radius:14px;
+      border:2px solid rgba(180,120,255,.65);
+      background: rgba(0,0,0,.25);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      font-size:13px;
+      color:rgba(255,255,255,.92);
+    }
 
-/* プログレスバー */
-.progress {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 5px;
-  background: rgba(255,255,255,0.2);
-}
+    /* ぐるぐる */
+    .spinner{
+      position:fixed;
+      left:50%;
+      top:55%;
+      transform: translate(-50%,-50%);
+      width:52px;height:52px;
+      border-radius:999px;
+      border:5px solid rgba(255,255,255,.18);
+      border-top-color: rgba(255,255,255,.85);
+      animation: spin 1s linear infinite;
+      z-index:25;
+      opacity:.75;
+      pointer-events:none;
+    }
+    @keyframes spin{ to{ transform: translate(-50%,-50%) rotate(360deg); } }
 
-.bar {
-  height: 100%;
-  width: 0%;
-  background: #ff2d75;
-}
-</style>
+    /* 右側SNSボタン */
+    .rightRail{
+      position:fixed;
+      right:16px;
+      bottom: calc(90px + var(--safe-bottom));
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      z-index:30;
+    }
+    .socialBtn{
+      width:54px;height:54px;
+      border-radius:14px;
+      display:grid;place-items:center;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .socialBtn img{ width:30px;height:30px; }
+
+    /* 右側：いいね等の縦UI（追加） */
+    .actionsRail{
+      position:fixed;
+      right:16px;
+      top: 26%;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:center;
+      z-index:30;
+    }
+    .actionItem{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      color:var(--muted);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bubble{
+      width:46px;height:46px;
+      border-radius:999px;
+      background: rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid;
+      place-items:center;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+    }
+    .actionCount{ font-weight:800; color:rgba(255,255,255,.78); }
+
+    /* 左下X風 */
+    .xBadge{
+      position:fixed;
+      left:18px;
+      bottom: calc(18px + var(--safe-bottom));
+      width:58px;height:58px;
+      border-radius:16px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow);
+      z-index:30;
+    }
+    .xBadge span{ font-weight:900; font-size:26px; letter-spacing:.02em; }
+
+    /* 下CTA */
+    .bottomCta{
+      position:fixed;
+      left:50%;
+      bottom: calc(26px + var(--safe-bottom));
+      transform: translateX(-50%);
+      background: var(--blue);
+      color:#fff;
+      text-decoration:none;
+      font-weight:900;
+      padding: 14px 22px;
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      z-index:40;
+      white-space:nowrap;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    .bottomCta:active{ transform: translateX(-50%) scale(.99); }
+
+    /* うっすらプレイヤーバー */
+    .miniPlayer{
+      position:fixed;
+      left:0; right:0;
+      bottom:0;
+      padding: 10px 12px calc(10px + var(--safe-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,0));
+      z-index:15;
+      pointer-events:none;
+    }
+    .miniRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      opacity:.75;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .miniBar{
+      flex:1;
+      height:4px;
+      border-radius:999px;
+      background: rgba(255,255,255,.18);
+      overflow:hidden;
+      position:relative;
+    }
+    .miniBar > i{
+      position:absolute; inset:0 auto 0 0;
+      width:0%;
+      background: rgba(255,255,255,.78);
+    }
+
+    /* ===== モーダル（ゲスト） ===== */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background: rgba(0,0,0,.55);
+      z-index:9999;
+    }
+    .modal.show{ display:flex; }
+
+    .modal-card{
+      width:min(520px, 92vw);
+      background:#fff;
+      color:#111;
+      border-radius:18px;
+      padding:18px 18px 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      position:relative;
+      text-align:center;
+    }
+    .modal-close{
+      position:absolute;
+      right:12px;
+      top:10px;
+      border:none;
+      background:transparent;
+      font-size:22px;
+      cursor:pointer;
+      color:#666;
+    }
+    .modal-title{
+      margin:6px 0 8px;
+      font-size:18px;
+      font-weight:900;
+    }
+    .modal-text{
+      margin:0 0 14px;
+      color:#555;
+      font-size:13px;
+      line-height:1.6;
+    }
+    .modal-btn{
+      display:inline-block;
+      background: var(--pink);
+      color:#fff;
+      text-decoration:none;
+      font-weight:900;
+      padding:12px 18px;
+      border-radius:999px;
+    }
+    .modal-btn:active{ transform:scale(.99); }
+  </style>
 </head>
 
 <body>
+  <!-- 背景動画 -->
+  <video id="bgv" class="bgVideo" playsinline muted preload="metadata">
+    <source src="./video.mp4" type="video/mp4">
+  </video>
+  <div class="shade"></div>
 
-<!-- 背景 -->
-<video class="bg-video" id="bg" muted autoplay loop playsinline></video>
+  <!-- 右上：DLっぽい（押したらモーダル or 遷移を選べる） -->
+  <div class="dlBtn" id="dlBtn" title="download">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 3v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 11l4 4 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5 21h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
 
-<!-- メイン -->
-<video class="main-video" id="video" muted autoplay playsinline></video>
+  <!-- 中央カード -->
+  <div class="centerWrap">
+    <div class="card" id="centerCard">
+      <div class="thumb">
+        <!-- サムネ（任意で差し替え） -->
+        <img id="thumbImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='1280'%3E%3Crect width='100%25' height='100%25' fill='%23111111'/%3E%3Ctext x='50%25' y='50%25' fill='%23ffffff' font-size='42' text-anchor='middle' dominant-baseline='middle'%3Epreview%3C/text%3E%3C/svg%3E" alt="preview">
+      </div>
 
-<!-- 右UI -->
-<div class="right-ui">
-  <div class="icon">❤</div>
-  <div>805</div>
+      <div class="cardX" id="cardClose" title="close">×</div>
 
-  <div class="icon">💾</div>
-  <div>579</div>
+      <div class="profile">
+        <div class="avatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%23333333'/%3E%3Ctext x='50%25' y='54%25' fill='%23ffffff' font-size='28' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt="avatar">
+        </div>
+        <div class="pText" id="profileText">
+          ここに一言テキスト<br>（任意で変更OK）
+        </div>
+      </div>
 
-  <div class="icon">💬</div>
-  <div>180</div>
-</div>
+      <div class="cardCtaFake">▶ アプリで見る</div>
+    </div>
+  </div>
 
-<!-- CTA -->
-<a class="cta" href="https://ad-nex.com/u/aiacgdx3w5rq">
-  続きはアプリで見る
-</a>
+  <!-- ぐるぐる -->
+  <div class="spinner" id="spinner"></div>
 
-<!-- プログレス -->
-<div class="progress">
-  <div class="bar" id="bar"></div>
-</div>
+  <!-- 右：いいね等UI（押すとモーダル出る） -->
+  <div class="actionsRail">
+    <div class="actionItem">
+      <div class="bubble" id="btnLike" title="Like" aria-label="Like">❤</div>
+      <div class="actionCount" id="likeCount">805</div>
+    </div>
+    <div class="actionItem">
+      <div class="bubble" id="btnSave" title="Save" aria-label="Save">🔖</div>
+      <div class="actionCount" id="saveCount">579</div>
+    </div>
+    <div class="actionItem">
+      <div class="bubble" id="btnComment" title="Comment" aria-label="Comment">💬</div>
+      <div class="actionCount" id="commentCount">180</div>
+    </div>
+    <div class="actionItem">
+      <div class="bubble" id="btnSound" title="Sound" aria-label="Sound">🔇</div>
+      <div class="actionCount" id="soundLabel">mute</div>
+    </div>
+  </div>
+
+  <!-- 右下SNS（押すとモーダル or 遷移） -->
+  <div class="rightRail">
+    <div class="socialBtn" id="igBtn" title="Instagram">
+      <img alt="ig" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23ff4aa0'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='30' text-anchor='middle' dominant-baseline='middle'%3EIG%3C/text%3E%3C/svg%3E">
+    </div>
+    <div class="socialBtn" id="tkBtn" title="TikTok">
+      <img alt="tk" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect rx='14' ry='14' width='64' height='64' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='28' text-anchor='middle' dominant-baseline='middle'%3ETK%3C/text%3E%3C/svg%3E">
+    </div>
+  </div>
+
+  <!-- 左下 X -->
+  <div class="xBadge"><span>X</span></div>
+
+  <!-- 下の青CTA -->
+  <a class="bottomCta" id="cta" href="#" rel="noopener">残り7分後アプリで見る</a>
+
+  <!-- うっすらプレイヤーっぽい -->
+  <div class="miniPlayer">
+    <div class="miniRow">
+      <span>▶</span>
+      <div class="miniBar"><i id="miniBar"></i></div>
+      <span id="miniTime">0:00</span>
+    </div>
+  </div>
+
+  <!-- ===== Install Modal ===== -->
+  <div id="installModal" class="modal">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose" aria-label="close">×</button>
+      <h3 class="modal-title" id="modalTitle">ようこそゲストさん。</h3>
+      <p class="modal-text" id="modalText">
+        アプリがインストールされていません。<br>
+        インストールをしてからお楽しみください。
+      </p>
+      <a class="modal-btn" id="modalInstallBtn" href="#" rel="noopener">
+        ストアでインストールする
+      </a>
+    </div>
+  </div>
 
 <script>
-const VIDEO_URL = "./video.mp4"; // ←ここだけ変える
+  /**
+   * =========================
+   * 設定（ここだけ触ればOK）
+   * =========================
+   */
+  const CONFIG = {
+    videoSrc: "./video.mp4",                         // 同じ階層ならこのまま
+    ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",      // 遷移先
+    stopAtSeconds: 0,                                // ★止めたくないなら 0 / 止めたい秒を入れる
+    loop: true,                                      // ループ
+    startMuted: true,                                // 初期ミュート
+    spinnerMs: 1200,                                 // ぐるぐる表示時間
+    showModalOnRightUI: true,                        // 右UIクリックでモーダル出す
+    modalGoDirectOnCTA: true,                        // 下CTAは直接遷移（falseならモーダル）
+    counts: { like: 805, save: 579, comment: 180 },  // 表示数
+    modalCopy: {
+      defaultTitle: "ようこそゲストさん。",
+      defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
+      likeText: "いいねするには、アプリのインストールが必要です。",
+      saveText: "保存するには、アプリのインストールが必要です。",
+      commentText: "コメントするには、アプリのインストールが必要です。",
+      soundText: "音声を有効にするには、アプリのインストールが必要です。"
+    }
+  };
 
-const v = document.getElementById("video");
-const bg = document.getElementById("bg");
-const bar = document.getElementById("bar");
+  // elements
+  const bgv = document.getElementById("bgv");
+  const cta = document.getElementById("cta");
+  const spinner = document.getElementById("spinner");
+  const miniBar = document.getElementById("miniBar");
+  const miniTime = document.getElementById("miniTime");
 
-v.src = VIDEO_URL;
-bg.src = VIDEO_URL;
+  const likeCount = document.getElementById("likeCount");
+  const saveCount = document.getElementById("saveCount");
+  const commentCount = document.getElementById("commentCount");
 
-/* プログレス */
-v.addEventListener("timeupdate", () => {
-  const p = (v.currentTime / v.duration) * 100;
-  bar.style.width = p + "%";
-});
+  const btnLike = document.getElementById("btnLike");
+  const btnSave = document.getElementById("btnSave");
+  const btnComment = document.getElementById("btnComment");
+  const btnSound = document.getElementById("btnSound");
+  const soundLabel = document.getElementById("soundLabel");
 
-/* タップで再生/停止 */
-document.body.addEventListener("click", () => {
-  if (v.paused) {
-    v.play();
-  } else {
-    v.pause();
+  const dlBtn = document.getElementById("dlBtn");
+  const igBtn = document.getElementById("igBtn");
+  const tkBtn = document.getElementById("tkBtn");
+
+  const modal = document.getElementById("installModal");
+  const modalClose = document.getElementById("modalClose");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalText = document.getElementById("modalText");
+  const modalInstallBtn = document.getElementById("modalInstallBtn");
+
+  const cardClose = document.getElementById("cardClose");
+  const centerCard = document.getElementById("centerCard");
+
+  // counts
+  likeCount.textContent = CONFIG.counts.like;
+  saveCount.textContent = CONFIG.counts.save;
+  commentCount.textContent = CONFIG.counts.comment;
+
+  // CTA
+  cta.href = CONFIG.ctaUrl;
+  modalInstallBtn.href = CONFIG.ctaUrl;
+
+  // video setup
+  // sourceタグを使っているので src 代入は本来不要だが、確実に合わせる
+  const source = bgv.querySelector("source");
+  if (source) source.src = CONFIG.videoSrc;
+  bgv.load();
+
+  bgv.muted = !!CONFIG.startMuted;
+  bgv.loop = !!CONFIG.loop;
+  bgv.playsInline = true;
+  bgv.preload = "metadata";
+
+  // spinner hide（演出）
+  setTimeout(() => { spinner.style.display = "none"; }, CONFIG.spinnerMs);
+
+  // iPhone対策：ユーザー操作で再生を確実に
+  const tryPlay = () => bgv.play().catch(()=>{});
+  document.addEventListener("click", tryPlay, { passive:true });
+
+  // mini progress
+  function fmt(sec){
+    sec = Math.max(0, sec|0);
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${m}:${String(s).padStart(2,"0")}`;
   }
-});
-</script>
 
+  bgv.addEventListener("loadedmetadata", () => {
+    tryPlay();
+  });
+
+  bgv.addEventListener("timeupdate", () => {
+    const dur = bgv.duration || 0;
+    const cur = bgv.currentTime || 0;
+
+    // stopAtSeconds（0なら無効）
+    if (CONFIG.stopAtSeconds > 0 && cur >= CONFIG.stopAtSeconds) {
+      bgv.pause();
+      // 止めた瞬間にモーダル出したいならここで openModal() を呼ぶ
+      // openModal("default");
+    }
+
+    const pct = dur ? (cur/dur)*100 : 0;
+    miniBar.style.width = `${pct}%`;
+    miniTime.textContent = fmt(cur);
+  });
+
+  // sound toggle（見た目だけでOKならモーダルにしても良い）
+  function syncSoundUI(){
+    soundLabel.textContent = bgv.muted ? "mute" : "sound";
+    btnSound.textContent = bgv.muted ? "🔇" : "🔊";
+  }
+  syncSoundUI();
+
+  // ===== Modal helpers =====
+  function openModal(kind="default"){
+    const copy = CONFIG.modalCopy;
+    modalTitle.textContent = copy.defaultTitle;
+
+    let text = copy.defaultText;
+    if (kind === "like") text = copy.likeText;
+    if (kind === "save") text = copy.saveText;
+    if (kind === "comment") text = copy.commentText;
+    if (kind === "sound") text = copy.soundText;
+
+    modalText.innerHTML = text;
+    modalInstallBtn.href = CONFIG.ctaUrl;
+
+    modal.classList.add("show");
+  }
+  function closeModal(){
+    modal.classList.remove("show");
+  }
+
+  modalClose.addEventListener("click", (e)=>{ e.stopPropagation(); closeModal(); });
+  modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+  // ===== Right UI click behavior =====
+  function rightClick(handler){
+    return (e) => {
+      e.stopPropagation(); // 背景クリック再生とバッティング防止
+      handler();
+    };
+  }
+
+  if (CONFIG.showModalOnRightUI){
+    btnLike.addEventListener("click", rightClick(()=>openModal("like")));
+    btnSave.addEventListener("click", rightClick(()=>openModal("save")));
+    btnComment.addEventListener("click", rightClick(()=>openModal("comment")));
+    btnSound.addEventListener("click", rightClick(()=>openModal("sound")));
+    dlBtn.addEventListener("click", rightClick(()=>openModal("default")));
+    igBtn.addEventListener("click", rightClick(()=>openModal("default")));
+    tkBtn.addEventListener("click", rightClick(()=>openModal("default")));
+  } else {
+    // 直接遷移にしたい場合
+    const go = () => location.href = CONFIG.ctaUrl;
+    btnLike.addEventListener("click", rightClick(go));
+    btnSave.addEventListener("click", rightClick(go));
+    btnComment.addEventListener("click", rightClick(go));
+    btnSound.addEventListener("click", rightClick(go));
+    dlBtn.addEventListener("click", rightClick(go));
+    igBtn.addEventListener("click", rightClick(go));
+    tkBtn.addEventListener("click", rightClick(go));
+  }
+
+  // 下CTA：直接遷移 or モーダル
+  cta.addEventListener("click", (e)=>{
+    if (!CONFIG.modalGoDirectOnCTA){
+      e.preventDefault();
+      openModal("default");
+    }
+  });
+
+  // 中央カードの×（消すだけの演出）
+  cardClose.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    centerCard.style.display = "none";
+  });
+
+  // 動画のエラー検知（トラブル時用）
+  bgv.addEventListener("error", () => {
+    alert("動画の読み込みに失敗しました。video.mp4 の形式(H.264)や配置を確認してね。");
+  });
+</script>
 </body>
 </html>
