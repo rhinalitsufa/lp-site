@@ -1,217 +1,733 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>LP</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>LP</title>
 
-<style>
-:root{
-  --pink:#ff2d75;
-  --pink2:#ff4aa0;
-  --safe-bottom: env(safe-area-inset-bottom);
-}
-body{
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family: system-ui, -apple-system, sans-serif;
-  overflow:hidden;
-}
+  <style>
+    :root{
+      --bg:#000;
+      --fg:#fff;
+      --muted:rgba(255,255,255,.75);
+      --line:rgba(255,255,255,.18);
+      --pink:#ff2d75;
+      --pink2:#ff4aa0;
+      --shadow:0 18px 50px rgba(0,0,0,.45);
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+      overflow:hidden;
+    }
 
-/* ===== Video ===== */
-.stage{position:fixed;inset:0;}
-video{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  background:#000;
-}
+    /* ===== Video ===== */
+    .stage{
+      position:fixed;
+      inset:0;
+      background:#000;
+      z-index:0;
+    }
+    video{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      background:#000;
+      display:block;
+    }
 
-/* ===== Right UI ===== */
-.rightRail{
-  position:fixed;
-  right:14px;
-  top:12%;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  z-index:50;
-}
-.railBtn{
-  width:50px;height:50px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  display:grid;place-items:center;
-  font-size:18px;
-  cursor:pointer;
-}
-.actionItem{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:12px;
-}
-.count{opacity:.85;font-weight:700;}
+    /* ===== Tap layer (video play/pause) ===== */
+    .tapLayer{
+      position:fixed;
+      inset:0;
+      z-index:5;
+      pointer-events:auto;
+    }
 
-/* ===== Bottom Bar ===== */
-.bottomArea{
-  position:fixed;
-  left:0;right:0;bottom:0;
-  padding:10px 12px calc(10px + var(--safe-bottom));
-  background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,0));
-}
-.progressRow{
-  display:flex;align-items:center;gap:10px;
-}
-.progress{
-  flex:1;height:4px;background:#444;
-  position:relative;border-radius:999px;
-}
-.bar{
-  position:absolute;height:100%;
-  background:linear-gradient(90deg,var(--pink),var(--pink2));
-  width:0%;
-}
-.time{font-size:12px;opacity:.8;}
+    /* ===== Top Info ===== */
+    .topInfo{
+      position:fixed;
+      left:14px;
+      top: calc(14px + var(--safe-top));
+      z-index:40;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      text-shadow: 0 8px 18px rgba(0,0,0,.55);
+      pointer-events:auto;
+    }
+    .saveRow{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:rgba(255,255,255,.92);
+      user-select:none;
+    }
+    .pillBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      font-weight:900;
+      font-size:13px;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+      text-decoration:none;
+      color:#fff;
+      width:min(320px, 78vw);
+    }
+    .pillBtn .arrow{ opacity:.9; font-size:16px; }
+    .limitedText{
+      font-size:12px;
+      color:rgba(255,255,255,.92);
+      line-height:1.35;
+      max-width:min(360px, 86vw);
+      pointer-events:none;
+    }
+    .limitedText b{
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      padding:2px 6px;
+      border-radius:8px;
+      margin-right:6px;
+    }
 
-/* ===== Modal ===== */
-.modal{
-  position:fixed;inset:0;
-  display:none;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.6);
-}
-.modal.show{display:flex;}
-.modalCard{
-  background:#fff;color:#111;
-  padding:20px;
-  border-radius:16px;
-  text-align:center;
-  width:90%;
-  max-width:380px;
-}
-.modalBtn{
-  display:inline-block;
-  margin-top:12px;
-  background:var(--pink);
-  color:#fff;
-  padding:10px 18px;
-  border-radius:999px;
-  text-decoration:none;
-  font-weight:700;
-}
+    /* ===== Right Rail ===== */
+    .rightRail{
+      position:fixed;
+      right:14px;
+      top: 10%;
+      z-index:50;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:center;
+      pointer-events:auto;
+    }
+    .railBtn{
+      width:48px;height:48px;
+      border-radius:999px;
+      background: rgba(0,0,0,.38);
+      border:1px solid rgba(255,255,255,.14);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      color:#fff;
+      pointer-events:auto;
+    }
+    .railBtn:active{ transform:scale(.98); }
 
-/* ===== Floating X ===== */
-#floatingX{
-  position:fixed;
-  right:18px;
-  bottom:calc(90px + var(--safe-bottom));
-  width:60px;height:60px;
-  border-radius:999px;
-  overflow:hidden;
-  box-shadow:0 18px 40px rgba(0,0,0,.6);
-  cursor:pointer;
-  z-index:60;
-}
-#floatingX img{
-  width:100%;height:100%;object-fit:cover;
-}
-.xFollowers{
-  position:absolute;
-  bottom:-22px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:12px;
-  font-weight:700;
-  color:#1da1f2;
-}
-</style>
+    .profileWrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+    }
+    .avatarBtn{
+      width:54px;height:54px;
+      border-radius:999px;
+      overflow:hidden;
+      border:2px solid rgba(255,255,255,.22);
+      box-shadow: var(--shadow);
+      background:#111;
+      cursor:pointer;
+      position:relative;
+      -webkit-tap-highlight-color: transparent;
+      pointer-events:auto;
+    }
+    .avatarBtn img{
+      width:100%;height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .plusBadge{
+      position:absolute;
+      left:50%;
+      bottom:-7px;
+      transform: translateX(-50%);
+      width:22px;height:22px;
+      border-radius:999px;
+      display:grid;place-items:center;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      border:2px solid rgba(0,0,0,.5);
+      font-weight:900;
+      font-size:14px;
+    }
+    .actionItem{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      color:rgba(255,255,255,.85);
+      text-shadow: 0 8px 18px rgba(0,0,0,.55);
+      pointer-events:auto;
+    }
+    .count{
+      font-weight:900;
+      color:rgba(255,255,255,.80);
+      user-select:none;
+    }
+
+    /* ===== Bottom progress + nav ===== */
+    .bottomArea{
+      position:fixed;
+      left:0; right:0;
+      bottom:0;
+      z-index:45;
+      background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
+      padding: 10px 12px calc(10px + var(--safe-bottom));
+      pointer-events:auto;
+    }
+    .progressRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      opacity:.95;
+      user-select:none;
+    }
+    .playIcon{
+      width:22px;height:22px;
+      display:grid;place-items:center;
+      opacity:.95;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      pointer-events:auto;
+    }
+    .progress{
+      flex:1;
+      height:4px;
+      border-radius:999px;
+      background: rgba(255,255,255,.20);
+      overflow:hidden;
+      position:relative;
+      cursor:pointer;
+      pointer-events:auto;
+    }
+    .progress > .bar{
+      position:absolute; inset:0 auto 0 0;
+      width:0%;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+    }
+    .progress > .dot{
+      position:absolute;
+      top:50%;
+      width:10px;height:10px;
+      border-radius:999px;
+      background:#fff;
+      transform: translate(-50%,-50%);
+      left:0%;
+      box-shadow: 0 8px 18px rgba(255,255,255,.18);
+    }
+    .time{
+      min-width:72px;
+      text-align:right;
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+      font-variant-numeric: tabular-nums;
+      pointer-events:none;
+    }
+
+    .navBar{
+      display:flex;
+      justify-content:space-around;
+      align-items:flex-end;
+      padding-top:6px;
+      border-top:1px solid rgba(255,255,255,.10);
+      user-select:none;
+      pointer-events:auto;
+    }
+    .navItem{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      color:rgba(255,255,255,.80);
+      font-size:11px;
+      width:20%;
+      -webkit-tap-highlight-color: transparent;
+      cursor:pointer;
+      pointer-events:auto;
+    }
+    .navItem svg{ opacity:.9; }
+
+    /* ===== Modal ===== */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background: rgba(0,0,0,.55);
+      z-index:9999;
+      pointer-events:auto;
+    }
+    .modal.show{ display:flex; }
+    .modalCard{
+      width:min(520px, 92vw);
+      background:#fff;
+      color:#111;
+      border-radius:18px;
+      padding:18px 18px 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      position:relative;
+      text-align:center;
+    }
+    .modalClose{
+      position:absolute;
+      right:12px;
+      top:10px;
+      border:none;
+      background:transparent;
+      font-size:22px;
+      cursor:pointer;
+      color:#666;
+    }
+    .modalTitle{
+      margin:6px 0 8px;
+      font-size:18px;
+      font-weight:900;
+    }
+    .modalText{
+      margin:0 0 14px;
+      color:#555;
+      font-size:13px;
+      line-height:1.6;
+    }
+    .modalBtn{
+      display:inline-block;
+      background: var(--pink);
+      color:#fff;
+      text-decoration:none;
+      font-weight:900;
+      padding:12px 18px;
+      border-radius:999px;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    .modalBtn:active{ transform:scale(.99); }
+
+    /* ===== Floating X (確実表示) ===== */
+    #floatingX{
+      position: fixed;
+      right: 18px;
+      bottom: calc(90px + var(--safe-bottom));
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      overflow: hidden;
+      z-index: 99999 !important;
+      pointer-events: auto !important;
+      cursor: pointer;
+      box-shadow: 0 18px 40px rgba(0,0,0,.65);
+      background:#000;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    #floatingX:active{ transform:scale(.98); }
+    #floatingX img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    #floatingX .xFollowers{
+      position:absolute;
+      left:50%;
+      bottom:-20px;
+      transform:translateX(-50%);
+      font-size:12px;
+      font-weight:800;
+      color:#1da1f2;
+      text-shadow:0 6px 16px rgba(0,0,0,.7);
+      pointer-events:none;
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="stage">
-  <video id="v" playsinline muted>
-    <source src="./video.mp4" type="video/mp4">
-  </video>
-</div>
-
-<!-- Right Rail -->
-<div class="rightRail">
-  <div class="railBtn" id="btnLike">♡</div>
-  <div class="actionItem"><div class="count">805</div></div>
-
-  <div class="railBtn" id="btnSave">🔖</div>
-  <div class="actionItem"><div class="count">579</div></div>
-
-  <div class="railBtn" id="btnComment">💬</div>
-  <div class="actionItem"><div class="count">180</div></div>
-</div>
-
-<!-- Bottom -->
-<div class="bottomArea">
-  <div class="progressRow">
-    <div id="btnPlay">▶</div>
-    <div class="progress"><div class="bar" id="bar"></div></div>
-    <div class="time" id="time">0:00</div>
+  <div class="stage">
+    <video id="v" playsinline muted preload="metadata">
+      <source id="vsrc" src="./video.mp4" type="video/mp4">
+    </video>
   </div>
-</div>
 
-<!-- Modal -->
-<div id="modal" class="modal">
-  <div class="modalCard">
-    <div style="font-weight:800;font-size:18px;">ようこそゲストさん。</div>
-    <div style="margin-top:6px;font-size:13px;">
-      アプリがインストールされていません。
+  <div class="tapLayer" id="tapLayer" aria-label="tap"></div>
+
+  <!-- 上：保存・期間限定・CTA -->
+  <div class="topInfo">
+    <div class="saveRow">
+      <span>★</span><span>保存する</span><span style="opacity:.75;">›</span>
     </div>
-    <a href="https://ad-nex.com/u/aiacgdx3w5rq" class="modalBtn">
-      ストアでインストール
+
+    <a class="pillBtn" id="topCta" href="#" rel="noopener">
+      インストールして視聴する
+      <span class="arrow">›</span>
     </a>
+
+    <div class="limitedText" id="limitedText">
+      <b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた
+    </div>
   </div>
-</div>
 
-<!-- Floating X -->
-<div id="floatingX"
-     onclick="location.href='https://x.com/tyui33601530'">
-  <img src="./x-logo-studio-letter-x-design-icon-logotype-technology-font-vector.jpg">
-  <div class="xFollowers">17K</div>
-</div>
+  <!-- 右：プロフィール＋アクション -->
+  <div class="rightRail">
+    <div class="railBtn" id="btnShare" title="share" aria-label="share">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 6l-4-4-4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 2v14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
 
-<script>
-const v=document.getElementById("v");
-const bar=document.getElementById("bar");
-const time=document.getElementById("time");
-const btnPlay=document.getElementById("btnPlay");
-const modal=document.getElementById("modal");
+    <div class="profileWrap">
+      <div class="avatarBtn" id="btnProfile" title="profile">
+        <img id="avatarImg" alt="avatar">
+        <div class="plusBadge">+</div>
+      </div>
+    </div>
 
-function fmt(t){
-  const m=Math.floor(t/60);
-  const s=Math.floor(t%60);
-  return m+":"+String(s).padStart(2,"0");
-}
+    <div class="actionItem">
+      <div class="railBtn" id="btnLike" aria-label="like">♡</div>
+      <div class="count" id="likeCount">805</div>
+    </div>
 
-v.addEventListener("timeupdate",()=>{
-  const pct=(v.currentTime/v.duration)*100;
-  bar.style.width=pct+"%";
-  time.textContent=fmt(v.currentTime);
-});
+    <div class="actionItem">
+      <div class="railBtn" id="btnSave" aria-label="save">🔖</div>
+      <div class="count" id="saveCount">579</div>
+    </div>
 
-v.addEventListener("ended",()=>{
-  modal.classList.add("show");
-});
+    <div class="actionItem">
+      <div class="railBtn" id="btnComment" aria-label="comment">💬</div>
+      <div class="count" id="commentCount">180</div>
+    </div>
 
-btnPlay.onclick=()=>{
-  if(v.paused){v.play();btnPlay.textContent="Ⅱ";}
-  else{v.pause();btnPlay.textContent="▶";}
-};
+    <div class="actionItem">
+      <div class="railBtn" id="btnSound" aria-label="sound">🔇</div>
+      <div class="count" id="soundLabel">mute</div>
+    </div>
 
-v.onclick=()=>{ if(v.paused)v.play(); else v.pause(); };
+    <div class="railBtn" id="btnFull" title="fullscreen" aria-label="fullscreen">⛶</div>
+  </div>
 
-window.onload=()=>{
-  setTimeout(()=>modal.classList.add("show"),400);
-};
-</script>
+  <!-- 下：プログレス＋ナビ -->
+  <div class="bottomArea">
+    <div class="progressRow">
+      <div class="playIcon" id="btnPlay">▶</div>
+      <div class="progress" id="progress">
+        <div class="bar" id="bar"></div>
+        <div class="dot" id="dot"></div>
+      </div>
+      <div class="time" id="time">0:00 / 0:00</div>
+    </div>
 
+    <div class="navBar">
+      <div class="navItem" id="navHome">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-10.5z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>ホーム</div>
+      </div>
+      <div class="navItem" id="navBoost">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7l3-7z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>ブースト</div>
+      </div>
+      <div class="navItem" id="navRank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 20V10M12 20V4M18 20v-8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>ランキング</div>
+      </div>
+      <div class="navItem" id="navMsg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4v8z"
+            stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>メッセージ</div>
+      </div>
+      <div class="navItem" id="navAccount">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 10-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>アカウント</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modalCard">
+      <button class="modalClose" id="modalClose" aria-label="close">×</button>
+      <h3 class="modalTitle" id="modalTitle">ようこそゲストさん。</h3>
+      <p class="modalText" id="modalText">
+        アプリがインストールされていません。<br>
+        インストールをしてからお楽しみください。
+      </p>
+      <a class="modalBtn" id="modalBtn" href="#" rel="noopener">ストアでインストールする</a>
+    </div>
+  </div>
+
+  <!-- Floating X (右下) -->
+  <div id="floatingX" title="X" aria-label="X">
+    <img
+      src="./x-logo-studio-letter-x-design-icon-logotype-technology-font-vector.jpg"
+      alt="X"
+      onerror="this.style.display='none'; this.parentElement.style.display='grid'; this.parentElement.style.placeItems='center'; this.parentElement.style.fontWeight='900'; this.parentElement.textContent='X';"
+    >
+    <div class="xFollowers" id="xFollowers">17K</div>
+  </div>
+
+  <script>
+    /**
+     * =========================
+     * 設定（ここだけ触ればOK）
+     * =========================
+     */
+    const CONFIG = {
+      videoSrc: "./video.mp4",
+      ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
+      twitterUrl: "https://x.com/tyui33601530",
+      avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg",
+      counts: { like: 805, save: 579, comment: 180 },
+      limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた",
+      popupOnEnded: true,
+      popupDelayMs: 250,
+      showPopupOnLoad: true,
+      popupOnLoadDelayMs: 400,
+      stopAtSeconds: 0,
+      modalCopy: {
+        defaultTitle: "ようこそゲストさん。",
+        defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
+        likeText: "いいねするには、アプリのインストールが必要です。",
+        saveText: "保存するには、アプリのインストールが必要です。",
+        commentText: "コメントするには、アプリのインストールが必要です。",
+        navText: "この機能はアプリで利用できます。インストールして続けてください。"
+      }
+    };
+
+    // ===== elements =====
+    const v = document.getElementById("v");
+    const vsrc = document.getElementById("vsrc");
+    const tapLayer = document.getElementById("tapLayer");
+
+    const bar = document.getElementById("bar");
+    const dot = document.getElementById("dot");
+    const timeEl = document.getElementById("time");
+    const progress = document.getElementById("progress");
+    const btnPlay = document.getElementById("btnPlay");
+
+    const btnShare = document.getElementById("btnShare");
+    const btnProfile = document.getElementById("btnProfile");
+    const avatarImg = document.getElementById("avatarImg");
+    const floatingX = document.getElementById("floatingX");
+
+    const btnLike = document.getElementById("btnLike");
+    const btnSave = document.getElementById("btnSave");
+    const btnComment = document.getElementById("btnComment");
+    const btnSound = document.getElementById("btnSound");
+    const soundLabel = document.getElementById("soundLabel");
+    const btnFull = document.getElementById("btnFull");
+
+    const likeCount = document.getElementById("likeCount");
+    const saveCount = document.getElementById("saveCount");
+    const commentCount = document.getElementById("commentCount");
+
+    const topCta = document.getElementById("topCta");
+    const limitedText = document.getElementById("limitedText");
+
+    const navHome = document.getElementById("navHome");
+    const navBoost = document.getElementById("navBoost");
+    const navRank = document.getElementById("navRank");
+    const navMsg = document.getElementById("navMsg");
+    const navAccount = document.getElementById("navAccount");
+
+    const modal = document.getElementById("modal");
+    const modalClose = document.getElementById("modalClose");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const modalBtn = document.getElementById("modalBtn");
+
+    const xFollowers = document.getElementById("xFollowers");
+
+    // ===== init UI =====
+    likeCount.textContent = CONFIG.counts.like;
+    saveCount.textContent = CONFIG.counts.save;
+    commentCount.textContent = CONFIG.counts.comment;
+    limitedText.innerHTML = CONFIG.limitedTextHtml;
+
+    topCta.href = CONFIG.ctaUrl;
+    modalBtn.href = CONFIG.ctaUrl;
+
+    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()){
+      avatarImg.src = CONFIG.avatarUrl.trim();
+    }
+
+    // floating X click
+    floatingX.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      location.href = CONFIG.twitterUrl;
+    });
+    xFollowers.textContent = "17K";
+
+    // ===== video =====
+    vsrc.src = CONFIG.videoSrc;
+    v.load();
+    v.muted = true; // iPhone対策
+    v.playsInline = true;
+    v.preload = "metadata";
+
+    const tryPlay = () => v.play().catch(()=>{});
+    document.addEventListener("click", tryPlay, { passive:true });
+
+    function fmtTime(sec){
+      if(!isFinite(sec) || sec < 0) return "0:00";
+      const m = Math.floor(sec/60);
+      const s = Math.floor(sec%60);
+      return `${m}:${String(s).padStart(2,"0")}`;
+    }
+    function setProgress(){
+      const dur = v.duration || 0;
+      const cur = v.currentTime || 0;
+      const pct = dur ? (cur/dur)*100 : 0;
+      bar.style.width = `${pct}%`;
+      dot.style.left = `${pct}%`;
+      timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
+      btnPlay.textContent = v.paused ? "▶" : "Ⅱ";
+    }
+
+    v.addEventListener("loadedmetadata", setProgress);
+    v.addEventListener("timeupdate", () => {
+      setProgress();
+      if (CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds) v.pause();
+    });
+
+    v.addEventListener("ended", () => {
+      setProgress();
+      if (CONFIG.popupOnEnded){
+        setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
+      }
+    });
+
+    // tap play/pause
+    tapLayer.addEventListener("click", () => {
+      if (v.paused) tryPlay();
+      else v.pause();
+    });
+
+    // click play icon
+    btnPlay.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (v.paused) tryPlay();
+      else v.pause();
+    });
+
+    // seek
+    progress.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const rect = progress.getBoundingClientRect();
+      const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+      const pct = rect.width ? x / rect.width : 0;
+      const dur = v.duration || 0;
+      if (dur) v.currentTime = dur * pct;
+    });
+
+    // ===== modal =====
+    function openModal(kind="default"){
+      const c = CONFIG.modalCopy;
+      modalTitle.textContent = c.defaultTitle;
+
+      let text = c.defaultText;
+      if (kind === "like") text = c.likeText;
+      if (kind === "save") text = c.saveText;
+      if (kind === "comment") text = c.commentText;
+      if (kind === "nav") text = c.navText;
+
+      modalText.innerHTML = text;
+      modalBtn.href = CONFIG.ctaUrl;
+      modal.classList.add("show");
+    }
+    function closeModal(){
+      modal.classList.remove("show");
+    }
+    modalClose.addEventListener("click", (e)=>{ e.stopPropagation(); closeModal(); });
+    modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+    // right rail actions -> modal
+    const stopAndOpen = (kind) => (e) => { e.stopPropagation(); openModal(kind); };
+    btnLike.addEventListener("click", stopAndOpen("like"));
+    btnSave.addEventListener("click", stopAndOpen("save"));
+    btnComment.addEventListener("click", stopAndOpen("comment"));
+
+    btnSound.addEventListener("click", (e) => {
+      e.stopPropagation();
+      v.muted = !v.muted;
+      soundLabel.textContent = v.muted ? "mute" : "sound";
+      btnSound.textContent = v.muted ? "🔇" : "🔊";
+      if (!v.muted) tryPlay();
+    });
+
+    btnFull.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (document.fullscreenElement) document.exitFullscreen?.();
+      else v.requestFullscreen?.();
+    });
+
+    btnShare.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const shareData = { title: document.title, text: "Check this out", url: location.href };
+      try{
+        if (navigator.share) await navigator.share(shareData);
+        else openModal("default");
+      }catch(_){}
+    });
+
+    btnProfile.addEventListener("click", (e) => {
+      e.stopPropagation();
+      location.href = CONFIG.twitterUrl;
+    });
+
+    // bottom nav -> modal
+    const navClick = (e) => { e.stopPropagation(); openModal("nav"); };
+    navHome.addEventListener("click", navClick);
+    navBoost.addEventListener("click", navClick);
+    navRank.addEventListener("click", navClick);
+    navMsg.addEventListener("click", navClick);
+    navAccount.addEventListener("click", navClick);
+
+    // 初期
+    setProgress();
+
+    // 初回ポップアップ
+    if (CONFIG.showPopupOnLoad){
+      window.addEventListener("load", () => {
+        setTimeout(() => openModal("default"), CONFIG.popupOnLoadDelayMs || 0);
+      });
+    }
+
+    // 動画エラー
+    v.addEventListener("error", () => {
+      alert("動画の読み込みに失敗しました。video.mp4 の配置/パス/形式(H.264)を確認してね。");
+    });
+  </script>
 </body>
 </html>
