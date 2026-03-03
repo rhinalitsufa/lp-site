@@ -29,20 +29,16 @@
     }
 
     /* ===== Video ===== */
-    .stage{
-      position:fixed;
-      inset:0;
-      background:#000;
-    }
+    .stage{ position:fixed; inset:0; background:#000; }
     video{
       width:100%;
       height:100%;
-      object-fit:contain; /* ← ドアップ防止（全体表示） */
+      object-fit:contain; /* ドアップ防止 */
       background:#000;
       display:block;
     }
 
-    /* ===== Top texts (期間限定 etc) ===== */
+    /* ===== Top texts ===== */
     .topInfo{
       position:fixed;
       left:14px;
@@ -60,6 +56,7 @@
       gap:8px;
       font-size:12px;
       color:rgba(255,255,255,.92);
+      pointer-events:none;
     }
     .saveRow .star{
       width:18px;height:18px;
@@ -105,7 +102,7 @@
       margin-right:6px;
     }
 
-    /* ===== Right Rail (share/profile/like/save/comment/sound/fullscreen) ===== */
+    /* ===== Right Rail ===== */
     .rightRail{
       position:fixed;
       right:14px;
@@ -115,6 +112,7 @@
       flex-direction:column;
       gap:14px;
       align-items:center;
+      pointer-events:auto;
     }
     .railBtn{
       width:48px;height:48px;
@@ -189,6 +187,7 @@
       z-index:45;
       background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
       padding: 10px 12px calc(10px + var(--safe-bottom));
+      pointer-events:auto;
     }
     .progressRow{
       display:flex;
@@ -204,6 +203,7 @@
       opacity:.95;
       cursor:pointer;
       -webkit-tap-highlight-color: transparent;
+      user-select:none;
     }
     .progress{
       flex:1;
@@ -255,14 +255,16 @@
       width:20%;
       -webkit-tap-highlight-color: transparent;
       cursor:pointer;
+      user-select:none;
     }
     .navItem svg{ opacity:.9; }
 
-    /* ===== Tap layer (play/pause) ===== */
+    /* ===== Tap layer ===== */
     .tapLayer{
       position:fixed;
       inset:0;
       z-index:10; /* UIより下 */
+      pointer-events:auto;
     }
 
     /* ===== Modal ===== */
@@ -320,10 +322,6 @@
       user-select:none;
     }
     .modalBtn:active{ transform:scale(.99); }
-
-    /* ===== pointer-events整理（重要） ===== */
-    .topInfo, .rightRail, .bottomArea { pointer-events:auto; }
-    .tapLayer { pointer-events:auto; } /* タップ再生用 */
   </style>
 </head>
 
@@ -368,9 +366,8 @@
 
     <!-- profile -->
     <div class="profileWrap">
-      <div class="avatarBtn" id="btnProfile" title="profile">
-        <img id="avatarImg" alt="avatar"
-          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='100%25' height='100%25' fill='%23222222'/%3E%3Ctext x='50%25' y='54%25' fill='white' font-size='44' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E">
+      <div class="avatarBtn" id="btnProfile" title="profile" aria-label="profile">
+        <img id="avatarImg" alt="avatar">
         <div class="plusBadge">+</div>
       </div>
     </div>
@@ -395,9 +392,7 @@
       <div class="count" id="soundLabel">mute</div>
     </div>
 
-    <div class="railBtn" id="btnFull" title="fullscreen" aria-label="fullscreen">
-      ⛶
-    </div>
+    <div class="railBtn" id="btnFull" title="fullscreen" aria-label="fullscreen">⛶</div>
   </div>
 
   <!-- 下：プログレス＋ナビ -->
@@ -467,22 +462,19 @@
      * =========================
      */
     const CONFIG = {
-      videoSrc: "./video.mp4",                         // 例: "./video.mp4"  or  "./video/video.mp4"
-      ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",      // 広告先
-      twitterUrl: "https://x.com/",                    // ←自分のXリンクを入れる（例: "https://x.com/your_id"）
-　　　avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg", ←プロフィール画像URL（空ならデフォ絵）
-      counts: { like: 805, save: 579, comment: 180 },
+      videoSrc: "./video.mp4",
+      ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
+      twitterUrl: "https://x.com/",
 
-      // 期間限定テキスト
+      avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg",
+
+      counts: { like: 805, save: 579, comment: 180 },
       limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた",
 
-      // 動画終了で自動ポップアップ
       popupOnEnded: true,
-      popupDelayMs: 250,                               // 終了後ちょい待ってから出す
-      // 任意：途中で止めたいなら（0で無効）
+      popupDelayMs: 250,
       stopAtSeconds: 0,
 
-      // ポップアップ文言
       modalCopy: {
         defaultTitle: "ようこそゲストさん。",
         defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
@@ -503,8 +495,8 @@
     const dot = document.getElementById("dot");
     const timeEl = document.getElementById("time");
     const progress = document.getElementById("progress");
-
     const btnPlay = document.getElementById("btnPlay");
+
     const btnShare = document.getElementById("btnShare");
     const btnProfile = document.getElementById("btnProfile");
     const avatarImg = document.getElementById("avatarImg");
@@ -541,24 +533,24 @@
     likeCount.textContent = CONFIG.counts.like;
     saveCount.textContent = CONFIG.counts.save;
     commentCount.textContent = CONFIG.counts.comment;
-    limitedText.innerHTML = CONFIG.limitedTextHtml;
 
+    limitedText.innerHTML = CONFIG.limitedTextHtml;
     topCta.href = CONFIG.ctaUrl;
     modalBtn.href = CONFIG.ctaUrl;
 
-    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()){
+    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()) {
       avatarImg.src = CONFIG.avatarUrl.trim();
+      avatarImg.onerror = () => console.log("avatar load failed:", CONFIG.avatarUrl);
     }
 
     // ===== video =====
     vsrc.src = CONFIG.videoSrc;
     v.load();
-    v.muted = true; // iPhoneで自動再生しやすくするため初期ミュート
+    v.muted = true; // iPhone対策（自動再生しやすい）
     v.playsInline = true;
     v.preload = "metadata";
 
     const tryPlay = () => v.play().catch(()=>{});
-    // 初回どこかタップで再生を確実に
     document.addEventListener("click", tryPlay, { passive:true });
 
     function fmtTime(sec){
@@ -640,8 +632,6 @@
     // ===== right rail actions =====
     const stopAndOpen = (kind) => (e) => {
       e.stopPropagation();
-      // “自然な”動きにしたいなら止めないでもOK。止めたければ下を有効化
-      // v.pause();
       openModal(kind);
     };
 
@@ -655,8 +645,6 @@
       soundLabel.textContent = v.muted ? "mute" : "sound";
       btnSound.textContent = v.muted ? "🔇" : "🔊";
       if (!v.muted) tryPlay();
-      // 音声もモーダルにしたいなら↓
-      // openModal("sound");
     });
 
     btnFull.addEventListener("click", (e) => {
@@ -679,7 +667,6 @@
     // profile -> Twitter
     btnProfile.addEventListener("click", (e) => {
       e.stopPropagation();
-      // Xリンクが入ってれば遷移、なければモーダル
       if (CONFIG.twitterUrl && CONFIG.twitterUrl !== "https://x.com/") {
         location.href = CONFIG.twitterUrl;
       } else {
@@ -688,9 +675,9 @@
     });
 
     // top CTA
-    topCta.addEventListener("click", (e)=>{ /* 普通に遷移 */ });
+    topCta.addEventListener("click", (e)=>{ /* 通常遷移 */ });
 
-    // bottom nav -> modal（または遷移に変えてOK）
+    // bottom nav -> modal
     const navClick = (e) => { e.stopPropagation(); openModal("nav"); };
     navHome.addEventListener("click", navClick);
     navBoost.addEventListener("click", navClick);
