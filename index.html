@@ -10,8 +10,6 @@
     :root{
       --bg:#000;
       --fg:#fff;
-      --muted:rgba(255,255,255,.75);
-      --line:rgba(255,255,255,.18);
       --pink:#ff2d75;
       --pink2:#ff4aa0;
       --shadow:0 18px 50px rgba(0,0,0,.45);
@@ -33,12 +31,12 @@
     video{
       width:100%;
       height:100%;
-      object-fit:contain; /* ドアップ防止 */
+      object-fit:contain;
       background:#000;
       display:block;
     }
 
-    /* ===== Top texts ===== */
+    /* ===== Top ===== */
     .topInfo{
       position:fixed;
       left:14px;
@@ -47,21 +45,13 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      pointer-events:none;
       text-shadow: 0 8px 18px rgba(0,0,0,.55);
+      pointer-events:none;
     }
     .saveRow{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:rgba(255,255,255,.92);
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; color:rgba(255,255,255,.92);
       pointer-events:none;
-    }
-    .saveRow .star{
-      width:18px;height:18px;
-      display:inline-grid;place-items:center;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.4));
     }
     .pillBtn{
       pointer-events:auto;
@@ -82,11 +72,6 @@
       color:#fff;
       width:min(320px, 78vw);
     }
-    .pillBtn .arrow{
-      opacity:.9;
-      font-size:16px;
-      transform: translateY(-.5px);
-    }
     .limitedText{
       font-size:12px;
       color:rgba(255,255,255,.92);
@@ -102,7 +87,7 @@
       margin-right:6px;
     }
 
-    /* ===== Right Rail ===== */
+    /* ===== Right rail ===== */
     .rightRail{
       position:fixed;
       right:14px;
@@ -126,15 +111,7 @@
       -webkit-tap-highlight-color: transparent;
       color:#fff;
     }
-    .railBtn:active{ transform:scale(.98); }
-
-    .profileWrap{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      user-select:none;
-    }
+    .profileWrap{ display:flex; flex-direction:column; align-items:center; gap:6px; }
     .avatarBtn{
       width:54px;height:54px;
       border-radius:999px;
@@ -144,13 +121,8 @@
       background:#111;
       cursor:pointer;
       position:relative;
-      -webkit-tap-highlight-color: transparent;
     }
-    .avatarBtn img{
-      width:100%;height:100%;
-      object-fit:cover;
-      display:block;
-    }
+    .avatarBtn img{ width:100%;height:100%;object-fit:cover;display:block; }
     .plusBadge{
       position:absolute;
       left:50%;
@@ -164,125 +136,70 @@
       font-weight:900;
       font-size:14px;
     }
-
     .actionItem{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      font-size:12px;
-      color:rgba(255,255,255,.85);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      font-size:12px; color:rgba(255,255,255,.85);
       text-shadow: 0 8px 18px rgba(0,0,0,.55);
     }
-    .count{
-      font-weight:900;
-      color:rgba(255,255,255,.80);
-    }
+    .count{ font-weight:900; color:rgba(255,255,255,.80); }
 
-    /* ===== Bottom progress + nav ===== */
+    /* ===== Bottom ===== */
     .bottomArea{
       position:fixed;
-      left:0; right:0;
-      bottom:0;
+      left:0; right:0; bottom:0;
       z-index:45;
       background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
       padding: 10px 12px calc(10px + var(--safe-bottom));
       pointer-events:auto;
     }
     .progressRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-      opacity:.95;
-      user-select:none;
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:10px; opacity:.95;
     }
-    .playIcon{
-      width:20px;height:20px;
-      display:grid;place-items:center;
-      opacity:.95;
-      cursor:pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-    }
+    .playIcon{ width:20px;height:20px; display:grid; place-items:center; cursor:pointer; user-select:none; }
     .progress{
-      flex:1;
-      height:4px;
-      border-radius:999px;
+      flex:1; height:4px; border-radius:999px;
       background: rgba(255,255,255,.20);
-      overflow:hidden;
-      position:relative;
-      cursor:pointer;
+      overflow:hidden; position:relative; cursor:pointer;
     }
-    .progress > .bar{
+    .bar{
       position:absolute; inset:0 auto 0 0;
       width:0%;
       background: linear-gradient(90deg, var(--pink), var(--pink2));
     }
-    .progress > .dot{
-      position:absolute;
-      top:50%;
-      width:10px;height:10px;
-      border-radius:999px;
-      background:#fff;
+    .dot{
+      position:absolute; top:50%;
+      width:10px;height:10px; border-radius:999px; background:#fff;
       transform: translate(-50%,-50%);
       left:0%;
       box-shadow: 0 8px 18px rgba(255,255,255,.18);
     }
     .time{
-      min-width:72px;
-      text-align:right;
-      font-size:12px;
-      color:rgba(255,255,255,.78);
+      min-width:72px; text-align:right;
+      font-size:12px; color:rgba(255,255,255,.78);
       font-variant-numeric: tabular-nums;
     }
-
     .navBar{
-      display:flex;
-      justify-content:space-around;
-      align-items:flex-end;
-      padding-top:6px;
-      border-top:1px solid rgba(255,255,255,.10);
-      user-select:none;
+      display:flex; justify-content:space-around; align-items:flex-end;
+      padding-top:6px; border-top:1px solid rgba(255,255,255,.10);
     }
     .navItem{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      color:rgba(255,255,255,.80);
-      font-size:11px;
-      width:20%;
-      -webkit-tap-highlight-color: transparent;
-      cursor:pointer;
-      user-select:none;
-    }
-    .navItem svg{ opacity:.9; }
-
-    /* ===== Tap layer ===== */
-    .tapLayer{
-      position:fixed;
-      inset:0;
-      z-index:10; /* UIより下 */
-      pointer-events:auto;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      color:rgba(255,255,255,.80); font-size:11px; width:20%;
+      cursor:pointer; user-select:none;
     }
 
     /* ===== Modal ===== */
     .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      background: rgba(0,0,0,.55);
+      position:fixed; inset:0;
+      display:none; align-items:center; justify-content:center;
+      padding:16px; background: rgba(0,0,0,.55);
       z-index:9999;
     }
     .modal.show{ display:flex; }
     .modalCard{
       width:min(520px, 92vw);
-      background:#fff;
-      color:#111;
+      background:#fff; color:#111;
       border-radius:18px;
       padding:18px 18px 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,.35);
@@ -290,26 +207,12 @@
       text-align:center;
     }
     .modalClose{
-      position:absolute;
-      right:12px;
-      top:10px;
-      border:none;
-      background:transparent;
-      font-size:22px;
-      cursor:pointer;
-      color:#666;
+      position:absolute; right:12px; top:10px;
+      border:none; background:transparent;
+      font-size:22px; cursor:pointer; color:#666;
     }
-    .modalTitle{
-      margin:6px 0 8px;
-      font-size:18px;
-      font-weight:900;
-    }
-    .modalText{
-      margin:0 0 14px;
-      color:#555;
-      font-size:13px;
-      line-height:1.6;
-    }
+    .modalTitle{ margin:6px 0 8px; font-size:18px; font-weight:900; }
+    .modalText{ margin:0 0 14px; color:#555; font-size:13px; line-height:1.6; }
     .modalBtn{
       display:inline-block;
       background: var(--pink);
@@ -318,10 +221,8 @@
       font-weight:900;
       padding:12px 18px;
       border-radius:999px;
-      -webkit-tap-highlight-color: transparent;
       user-select:none;
     }
-    .modalBtn:active{ transform:scale(.99); }
   </style>
 </head>
 
@@ -332,20 +233,12 @@
     </video>
   </div>
 
-  <!-- 画面タップで再生/停止 -->
-  <div class="tapLayer" id="tapLayer" aria-label="tap"></div>
-
-  <!-- 上：保存・期間限定・CTA -->
   <div class="topInfo">
-    <div class="saveRow">
-      <span class="star">★</span>
-      <span>保存する</span>
-      <span style="opacity:.75;">›</span>
-    </div>
+    <div class="saveRow"><span>★</span><span>保存する</span><span style="opacity:.75;">›</span></div>
 
     <a class="pillBtn" id="topCta" href="#" rel="noopener">
       インストールして視聴する
-      <span class="arrow">›</span>
+      <span style="opacity:.9;font-size:16px;">›</span>
     </a>
 
     <div class="limitedText" id="limitedText">
@@ -353,18 +246,9 @@
     </div>
   </div>
 
-  <!-- 右：シェア＋プロフィール＋アクション -->
   <div class="rightRail">
-    <!-- share -->
-    <div class="railBtn" id="btnShare" title="share" aria-label="share">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        <path d="M16 6l-4-4-4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 2v14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </div>
+    <div class="railBtn" id="btnShare" title="share" aria-label="share">⤴︎</div>
 
-    <!-- profile -->
     <div class="profileWrap">
       <div class="avatarBtn" id="btnProfile" title="profile" aria-label="profile">
         <img id="avatarImg" alt="avatar">
@@ -373,29 +257,25 @@
     </div>
 
     <div class="actionItem">
-      <div class="railBtn" id="btnLike" aria-label="like">♡</div>
+      <div class="railBtn" id="btnLike">♡</div>
       <div class="count" id="likeCount">805</div>
     </div>
-
     <div class="actionItem">
-      <div class="railBtn" id="btnSave" aria-label="save">🔖</div>
+      <div class="railBtn" id="btnSave">🔖</div>
       <div class="count" id="saveCount">579</div>
     </div>
-
     <div class="actionItem">
-      <div class="railBtn" id="btnComment" aria-label="comment">💬</div>
+      <div class="railBtn" id="btnComment">💬</div>
       <div class="count" id="commentCount">180</div>
     </div>
-
     <div class="actionItem">
-      <div class="railBtn" id="btnSound" aria-label="sound">🔇</div>
+      <div class="railBtn" id="btnSound">🔇</div>
       <div class="count" id="soundLabel">mute</div>
     </div>
 
-    <div class="railBtn" id="btnFull" title="fullscreen" aria-label="fullscreen">⛶</div>
+    <div class="railBtn" id="btnFull">⛶</div>
   </div>
 
-  <!-- 下：プログレス＋ナビ -->
   <div class="bottomArea">
     <div class="progressRow">
       <div class="playIcon" id="btnPlay">▶</div>
@@ -407,105 +287,40 @@
     </div>
 
     <div class="navBar">
-      <div class="navItem" id="navHome">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-10.5z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        <div>ホーム</div>
-      </div>
-      <div class="navItem" id="navBoost">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7l3-7z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        <div>ブースト</div>
-      </div>
-      <div class="navItem" id="navRank">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 20V10M12 20V4M18 20v-8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div>ランキング</div>
-      </div>
-      <div class="navItem" id="navMsg">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M21 15a4 4 0 01-4 4H8l-5 3V7a4 4 0 014-4h10a4 4 0 014 4v8z"
-            stroke="white" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        <div>メッセージ</div>
-      </div>
-      <div class="navItem" id="navAccount">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M20 21a8 8 0 10-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div>アカウント</div>
-      </div>
+      <div class="navItem" id="navHome"><div>🏠</div><div>ホーム</div></div>
+      <div class="navItem" id="navBoost"><div>★</div><div>ブースト</div></div>
+      <div class="navItem" id="navRank"><div>📈</div><div>ランキング</div></div>
+      <div class="navItem" id="navMsg"><div>✉</div><div>メッセージ</div></div>
+      <div class="navItem" id="navAccount"><div>👤</div><div>アカウント</div></div>
     </div>
   </div>
 
-  <!-- Modal -->
   <div id="modal" class="modal">
     <div class="modalCard">
-      <button class="modalClose" id="modalClose" aria-label="close">×</button>
+      <button class="modalClose" id="modalClose">×</button>
       <h3 class="modalTitle" id="modalTitle">ようこそゲストさん。</h3>
       <p class="modalText" id="modalText">
-        アプリがインストールされていません。<br>
-        インストールをしてからお楽しみください。
+        アプリがインストールされていません。<br>インストールしてからお楽しみください。
       </p>
       <a class="modalBtn" id="modalBtn" href="#" rel="noopener">ストアでインストールする</a>
     </div>
   </div>
 
   <script>
-    /**
-     * =========================
-     * 設定（ここだけ触ればOK）
-     * =========================
-     */
     const CONFIG = {
       videoSrc: "./video.mp4",
       ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
       twitterUrl: "https://x.com/",
-
       avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg",
-
       counts: { like: 805, save: 579, comment: 180 },
       limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた",
-
       popupOnEnded: true,
-      popupDelayMs: 250,
-      stopAtSeconds: 0,
-
-      modalCopy: {
-        defaultTitle: "ようこそゲストさん。",
-        defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
-        likeText: "いいねするには、アプリのインストールが必要です。",
-        saveText: "保存するには、アプリのインストールが必要です。",
-        commentText: "コメントするには、アプリのインストールが必要です。",
-        soundText: "音声を有効にするには、アプリのインストールが必要です。",
-        navText: "この機能はアプリで利用できます。インストールして続けてください。"
-      }
+      popupDelayMs: 250
     };
 
-    // ===== elements =====
+    // elements
     const v = document.getElementById("v");
     const vsrc = document.getElementById("vsrc");
-    const tapLayer = document.getElementById("tapLayer");
-
-    const bar = document.getElementById("bar");
-    const dot = document.getElementById("dot");
-    const timeEl = document.getElementById("time");
-    const progress = document.getElementById("progress");
-    const btnPlay = document.getElementById("btnPlay");
-
-    const btnShare = document.getElementById("btnShare");
-    const btnProfile = document.getElementById("btnProfile");
-    const avatarImg = document.getElementById("avatarImg");
-
-    const btnLike = document.getElementById("btnLike");
-    const btnSave = document.getElementById("btnSave");
-    const btnComment = document.getElementById("btnComment");
-    const btnSound = document.getElementById("btnSound");
-    const btnFull = document.getElementById("btnFull");
 
     const likeCount = document.getElementById("likeCount");
     const saveCount = document.getElementById("saveCount");
@@ -514,46 +329,60 @@
 
     const topCta = document.getElementById("topCta");
     const limitedText = document.getElementById("limitedText");
+    const avatarImg = document.getElementById("avatarImg");
 
-    // bottom nav
+    const btnPlay = document.getElementById("btnPlay");
+    const progress = document.getElementById("progress");
+    const bar = document.getElementById("bar");
+    const dot = document.getElementById("dot");
+    const timeEl = document.getElementById("time");
+
+    const btnShare = document.getElementById("btnShare");
+    const btnProfile = document.getElementById("btnProfile");
+    const btnLike = document.getElementById("btnLike");
+    const btnSave = document.getElementById("btnSave");
+    const btnComment = document.getElementById("btnComment");
+    const btnSound = document.getElementById("btnSound");
+    const btnFull = document.getElementById("btnFull");
+
     const navHome = document.getElementById("navHome");
     const navBoost = document.getElementById("navBoost");
     const navRank = document.getElementById("navRank");
     const navMsg = document.getElementById("navMsg");
     const navAccount = document.getElementById("navAccount");
 
-    // modal
     const modal = document.getElementById("modal");
     const modalClose = document.getElementById("modalClose");
     const modalTitle = document.getElementById("modalTitle");
     const modalText = document.getElementById("modalText");
     const modalBtn = document.getElementById("modalBtn");
 
-    // ===== init UI =====
+    // init UI
     likeCount.textContent = CONFIG.counts.like;
     saveCount.textContent = CONFIG.counts.save;
     commentCount.textContent = CONFIG.counts.comment;
-
     limitedText.innerHTML = CONFIG.limitedTextHtml;
+
     topCta.href = CONFIG.ctaUrl;
     modalBtn.href = CONFIG.ctaUrl;
 
-    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()) {
-      avatarImg.src = CONFIG.avatarUrl.trim();
-      avatarImg.onerror = () => console.log("avatar load failed:", CONFIG.avatarUrl);
-    }
+    if (CONFIG.avatarUrl) avatarImg.src = CONFIG.avatarUrl;
 
-    // ===== video =====
+    // video
     vsrc.src = CONFIG.videoSrc;
     v.load();
-    v.muted = true; // iPhone対策（自動再生しやすい）
+    v.muted = true;          // autoplayしやすい
     v.playsInline = true;
-    v.preload = "metadata";
 
     const tryPlay = () => v.play().catch(()=>{});
-    document.addEventListener("click", tryPlay, { passive:true });
 
-    function fmtTime(sec){
+    // ★重要：video自体をタップで再生/停止（これでUI無反応になりにくい）
+    v.addEventListener("click", () => {
+      if (v.paused) tryPlay();
+      else v.pause();
+    });
+
+    function fmt(sec){
       if(!isFinite(sec) || sec < 0) return "0:00";
       const m = Math.floor(sec/60);
       const s = Math.floor(sec%60);
@@ -563,135 +392,86 @@
       const dur = v.duration || 0;
       const cur = v.currentTime || 0;
       const pct = dur ? (cur/dur)*100 : 0;
-      bar.style.width = `${pct}%`;
-      dot.style.left = `${pct}%`;
-      timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
+      bar.style.width = pct + "%";
+      dot.style.left = pct + "%";
+      timeEl.textContent = `${fmt(cur)} / ${fmt(dur)}`;
       btnPlay.textContent = v.paused ? "▶" : "Ⅱ";
     }
-
     v.addEventListener("loadedmetadata", setProgress);
-    v.addEventListener("timeupdate", () => {
-      setProgress();
-      if (CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds) {
-        v.pause();
-      }
-    });
+    v.addEventListener("timeupdate", setProgress);
 
     v.addEventListener("ended", () => {
       setProgress();
-      if (CONFIG.popupOnEnded){
-        setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
-      }
+      if (CONFIG.popupOnEnded) setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
     });
 
-    // tap play/pause
-    tapLayer.addEventListener("click", () => {
-      if (v.paused) tryPlay();
-      else v.pause();
-    });
+    // controls
+    btnPlay.addEventListener("click", (e)=>{ e.stopPropagation(); if(v.paused) tryPlay(); else v.pause(); });
 
-    // click play icon
-    btnPlay.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (v.paused) tryPlay();
-      else v.pause();
-    });
-
-    // seek on progress
     progress.addEventListener("click", (e) => {
       e.stopPropagation();
       const rect = progress.getBoundingClientRect();
       const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
       const pct = rect.width ? x / rect.width : 0;
-      const dur = v.duration || 0;
-      if (dur) v.currentTime = dur * pct;
+      if (v.duration) v.currentTime = v.duration * pct;
     });
 
-    // ===== modal =====
     function openModal(kind="default"){
-      const c = CONFIG.modalCopy;
-      modalTitle.textContent = c.defaultTitle;
-
-      let text = c.defaultText;
-      if (kind === "like") text = c.likeText;
-      if (kind === "save") text = c.saveText;
-      if (kind === "comment") text = c.commentText;
-      if (kind === "sound") text = c.soundText;
-      if (kind === "nav") text = c.navText;
-
-      modalText.innerHTML = text;
+      modalTitle.textContent = "ようこそゲストさん。";
+      modalText.innerHTML = "アプリがインストールされていません。<br>インストールしてからお楽しみください。";
       modalBtn.href = CONFIG.ctaUrl;
       modal.classList.add("show");
     }
-    function closeModal(){
-      modal.classList.remove("show");
-    }
+    function closeModal(){ modal.classList.remove("show"); }
     modalClose.addEventListener("click", (e)=>{ e.stopPropagation(); closeModal(); });
     modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
 
-    // ===== right rail actions =====
-    const stopAndOpen = (kind) => (e) => {
-      e.stopPropagation();
-      openModal(kind);
-    };
+    // right rail
+    btnLike.addEventListener("click", (e)=>{ e.stopPropagation(); openModal("like"); });
+    btnSave.addEventListener("click", (e)=>{ e.stopPropagation(); openModal("save"); });
+    btnComment.addEventListener("click", (e)=>{ e.stopPropagation(); openModal("comment"); });
 
-    btnLike.addEventListener("click", stopAndOpen("like"));
-    btnSave.addEventListener("click", stopAndOpen("save"));
-    btnComment.addEventListener("click", stopAndOpen("comment"));
-
-    btnSound.addEventListener("click", (e) => {
+    btnSound.addEventListener("click", (e)=>{
       e.stopPropagation();
       v.muted = !v.muted;
       soundLabel.textContent = v.muted ? "mute" : "sound";
       btnSound.textContent = v.muted ? "🔇" : "🔊";
-      if (!v.muted) tryPlay();
+      if(!v.muted) tryPlay();
     });
 
-    btnFull.addEventListener("click", (e) => {
+    btnFull.addEventListener("click", (e)=>{
       e.stopPropagation();
-      const el = v;
-      if (document.fullscreenElement) document.exitFullscreen?.();
-      else el.requestFullscreen?.();
+      if(document.fullscreenElement) document.exitFullscreen?.();
+      else v.requestFullscreen?.();
     });
 
-    // share
-    btnShare.addEventListener("click", async (e) => {
+    btnShare.addEventListener("click", async (e)=>{
       e.stopPropagation();
       const shareData = { title: document.title, text: "Check this out", url: location.href };
-      try{
-        if (navigator.share) await navigator.share(shareData);
-        else openModal("default");
-      }catch(_){}
+      try{ if(navigator.share) await navigator.share(shareData); else openModal("default"); }catch(_){}
     });
 
-    // profile -> Twitter
-    btnProfile.addEventListener("click", (e) => {
+    btnProfile.addEventListener("click", (e)=>{
       e.stopPropagation();
-      if (CONFIG.twitterUrl && CONFIG.twitterUrl !== "https://x.com/") {
-        location.href = CONFIG.twitterUrl;
-      } else {
-        openModal("default");
-      }
+      if (CONFIG.twitterUrl && CONFIG.twitterUrl !== "https://x.com/") location.href = CONFIG.twitterUrl;
+      else openModal("default");
     });
 
-    // top CTA
-    topCta.addEventListener("click", (e)=>{ /* 通常遷移 */ });
-
-    // bottom nav -> modal
-    const navClick = (e) => { e.stopPropagation(); openModal("nav"); };
+    // nav -> modal
+    const navClick = (e)=>{ e.stopPropagation(); openModal("nav"); };
     navHome.addEventListener("click", navClick);
     navBoost.addEventListener("click", navClick);
     navRank.addEventListener("click", navClick);
     navMsg.addEventListener("click", navClick);
     navAccount.addEventListener("click", navClick);
 
-    // 初期
-    setProgress();
-
-    // 動画エラー
+    // debugging（動画読み込み失敗）
     v.addEventListener("error", () => {
-      alert("動画の読み込みに失敗しました。video.mp4 の形式(H.264)や配置パスを確認してね。");
+      alert("動画の読み込みに失敗。video.mp4 のURL/配置/形式(H.264)を確認してね。");
     });
+
+    // iPhone対策：最初のどこか1タップで再生を試す
+    document.addEventListener("click", tryPlay, { passive:true });
   </script>
 </body>
 </html>
