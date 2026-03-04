@@ -324,7 +324,7 @@
     }
     .modalBtn:active{ transform:scale(.99); }
 
-    /* ===== Floating X (確実表示) ===== */
+    /* ===== Floating X ===== */
     #floatingX{
       position: fixed;
       right: 18px;
@@ -358,6 +358,95 @@
       color:#1da1f2;
       text-shadow:0 6px 16px rgba(0,0,0,.7);
       pointer-events:none;
+    }
+
+    /* ===== 続きはこちら overlay ===== */
+    #nextOverlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 0 14px calc(20px + var(--safe-bottom));
+      z-index:80;
+      pointer-events:auto;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.20), rgba(0,0,0,.55));
+    }
+    #nextOverlay.show{ display:flex; }
+
+    .nextCard{
+      width:min(520px, 92vw);
+      border-radius:18px;
+      padding:14px 14px 12px;
+      background: rgba(0,0,0,.52);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(8px);
+    }
+    .nextTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      color:rgba(255,255,255,.92);
+      font-size:12px;
+    }
+    .nextTitle .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .nextTitle .tag .dot{
+      width:8px;height:8px;border-radius:999px;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      box-shadow: 0 10px 22px rgba(255,45,117,.25);
+    }
+    .nextBtn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      width:100%;
+      padding:14px 14px;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      border:1px solid rgba(255,255,255,.12);
+      color:#fff;
+      text-decoration:none;
+      font-weight:1000;
+      font-size:15px;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+      box-shadow: 0 18px 55px rgba(0,0,0,.45);
+      animation: pulse 1.25s ease-in-out infinite;
+    }
+    .nextBtn:active{ transform:scale(.99); }
+    .nextBtn .playBadge{
+      width:28px;height:28px;
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.18);
+      display:grid;place-items:center;
+      font-size:14px;
+      line-height:1;
+    }
+    .nextFine{
+      margin-top:10px;
+      font-size:11px;
+      color:rgba(255,255,255,.75);
+      line-height:1.45;
+      text-align:center;
+    }
+    .nextFine a{ color:rgba(255,255,255,.85); }
+    @keyframes pulse{
+      0%{ transform:translateY(0); filter:brightness(1); }
+      50%{ transform:translateY(-2px); filter:brightness(1.06); }
+      100%{ transform:translateY(0); filter:brightness(1); }
     }
   </style>
 </head>
@@ -474,7 +563,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal（必要なら使う） -->
   <div id="modal" class="modal">
     <div class="modalCard">
       <button class="modalClose" id="modalClose" aria-label="close">×</button>
@@ -484,6 +573,24 @@
         インストールをしてからお楽しみください。
       </p>
       <a class="modalBtn" id="modalBtn" href="#" rel="noopener">ストアでインストールする</a>
+    </div>
+  </div>
+
+  <!-- 続きはこちら overlay -->
+  <div id="nextOverlay" aria-label="next">
+    <div class="nextCard">
+      <div class="nextTitle">
+        <span class="tag"><span class="dot"></span> この続きは外部ページで再生</span>
+        <span style="opacity:.8;font-size:11px;" id="nextHint">あと少し…</span>
+      </div>
+      <a class="nextBtn" id="nextBtn" href="#" rel="noopener">
+        <span class="playBadge">▶</span>
+        続きはこちら
+        <span style="opacity:.9;">›</span>
+      </a>
+      <div class="nextFine">
+        ※タップで外部ページへ移動します
+      </div>
     </div>
   </div>
 
@@ -509,12 +616,20 @@
       twitterUrl: "https://x.com/tyui33601530",
       avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg",
       counts: { like: 805, save: 579, comment: 180 },
-      limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた",
-      popupOnEnded: true,
+      limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた方限定",
+
+      // ▼ここが「続きはこちら」挙動の本体
+      showNextAtSeconds: 7.0,     // 何秒で「続きはこちら」を出すか
+      pauseAtNext: true,          // 出した瞬間に動画を止める
+      nextAlsoOnEnded: true,      // 終了時も表示
+      nextLabel: "あと少し…",     // 右上の小テキスト
+
+      // 既存モーダル（使うならtrueに）
+      popupOnEnded: false,
       popupDelayMs: 250,
-      showPopupOnLoad: true,
+      showPopupOnLoad: false,     // ←最初に出るのはOFFにしておく
       popupOnLoadDelayMs: 400,
-      stopAtSeconds: 0,
+      stopAtSeconds: 0,           // 使わない（上の pauseAtNext で制御）
       modalCopy: {
         defaultTitle: "ようこそゲストさん。",
         defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
@@ -569,6 +684,11 @@
 
     const xFollowers = document.getElementById("xFollowers");
 
+    // 続きはこちら
+    const nextOverlay = document.getElementById("nextOverlay");
+    const nextBtn = document.getElementById("nextBtn");
+    const nextHint = document.getElementById("nextHint");
+
     // ===== init UI =====
     likeCount.textContent = CONFIG.counts.like;
     saveCount.textContent = CONFIG.counts.save;
@@ -577,6 +697,9 @@
 
     topCta.href = CONFIG.ctaUrl;
     modalBtn.href = CONFIG.ctaUrl;
+
+    nextBtn.href = CONFIG.ctaUrl;
+    nextHint.textContent = CONFIG.nextLabel || "あと少し…";
 
     if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()){
       avatarImg.src = CONFIG.avatarUrl.trim();
@@ -615,14 +738,42 @@
       btnPlay.textContent = v.paused ? "▶" : "Ⅱ";
     }
 
+    let nextShown = false;
+
+    function showNextOverlay(){
+      if (nextShown) return;
+      nextShown = true;
+      nextOverlay.classList.add("show");
+      if (CONFIG.pauseAtNext) v.pause();
+    }
+    function hideNextOverlay(){
+      nextOverlay.classList.remove("show");
+    }
+
+    // オーバーレイが出たら、タップで動画再開…ではなく、CTAボタンを押させたいので
+    // 背景タップは無視（誤タップで再生されるのを防ぐ）
+    nextOverlay.addEventListener("click", (e)=>{
+      // overlay背景をタップしたら閉じるだけ（必要ならコメントアウト）
+      if (e.target === nextOverlay) {
+        // 好みで：閉じないなら return;
+        hideNextOverlay();
+      }
+    });
+
     v.addEventListener("loadedmetadata", setProgress);
+
     v.addEventListener("timeupdate", () => {
       setProgress();
-      if (CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds) v.pause();
+
+      const t = v.currentTime || 0;
+      if (!nextShown && CONFIG.showNextAtSeconds > 0 && t >= CONFIG.showNextAtSeconds) {
+        showNextOverlay();
+      }
     });
 
     v.addEventListener("ended", () => {
       setProgress();
+      if (CONFIG.nextAlsoOnEnded) showNextOverlay();
       if (CONFIG.popupOnEnded){
         setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
       }
@@ -630,6 +781,8 @@
 
     // tap play/pause
     tapLayer.addEventListener("click", () => {
+      // 「続きはこちら」が出てる間は、誤タップで再生/停止しない
+      if (nextOverlay.classList.contains("show")) return;
       if (v.paused) tryPlay();
       else v.pause();
     });
@@ -637,6 +790,7 @@
     // click play icon
     btnPlay.addEventListener("click", (e) => {
       e.stopPropagation();
+      if (nextOverlay.classList.contains("show")) return;
       if (v.paused) tryPlay();
       else v.pause();
     });
@@ -644,6 +798,7 @@
     // seek
     progress.addEventListener("click", (e) => {
       e.stopPropagation();
+      if (nextOverlay.classList.contains("show")) return;
       const rect = progress.getBoundingClientRect();
       const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
       const pct = rect.width ? x / rect.width : 0;
@@ -672,7 +827,7 @@
     modalClose.addEventListener("click", (e)=>{ e.stopPropagation(); closeModal(); });
     modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
 
-    // right rail actions -> modal
+    // right rail actions -> modal（必要なら nextOverlay にしてもOK）
     const stopAndOpen = (kind) => (e) => { e.stopPropagation(); openModal(kind); };
     btnLike.addEventListener("click", stopAndOpen("like"));
     btnSave.addEventListener("click", stopAndOpen("save"));
@@ -717,7 +872,7 @@
     // 初期
     setProgress();
 
-    // 初回ポップアップ
+    // 初回ポップアップ（OFFにしてある）
     if (CONFIG.showPopupOnLoad){
       window.addEventListener("load", () => {
         setTimeout(() => openModal("default"), CONFIG.popupOnLoadDelayMs || 0);
