@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#000000" />
-  <title>X Player</title>
+  <title>X player</title>
 
   <style>
     :root{
@@ -29,286 +29,218 @@
     }
 
     /* ===== Video ===== */
-    .stage{
-      position:fixed;
-      inset:0;
-      background:#000;
-      z-index:0;
-    }
-    video{
-      width:100%;
-      height:100%;
-      object-fit:contain; /* ドアップ防止 */
-      background:#000;
-      display:block;
-    }
+    .stage{ position:fixed; inset:0; background:#000; z-index:0; }
+    video{ width:100%; height:100%; object-fit:contain; background:#000; display:block; }
 
-    /* ===== Tap layer (video play/pause) ===== */
-    .tapLayer{
-      position:fixed;
-      inset:0;
-      z-index:5; /* UIより下 */
-      pointer-events:auto;
+    /* ===== Tap layer ===== */
+    .tapLayer{ position:fixed; inset:0; z-index:5; pointer-events:auto; }
+
+    /* ===== Autoplay blocked overlay ===== */
+    .playOverlay{
+      position:fixed; inset:0; z-index:60;
+      display:none; place-items:center;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      -webkit-tap-highlight-color: transparent;
+      user-select:none; cursor:pointer;
+    }
+    .playOverlay.show{ display:grid; }
+    .playOverlay .btn{
+      display:flex; align-items:center; gap:10px;
+      padding:14px 16px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.55);
+      box-shadow: 0 18px 40px rgba(0,0,0,.65);
+      font-weight:900; color:#fff;
+    }
+    .playOverlay .icon{
+      width:46px;height:46px;border-radius:999px;
+      display:grid;place-items:center;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      font-size:20px;
+    }
+    .playOverlay .sub{
+      margin-top:10px; font-size:12px;
+      color:rgba(255,255,255,.75);
+      text-shadow: 0 8px 18px rgba(0,0,0,.65);
+      text-align:center; padding:0 18px;
     }
 
     /* ===== Top Info ===== */
     .topInfo{
-      position:fixed;
-      left:14px;
-      top: calc(14px + var(--safe-top));
-      z-index:40;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+      position:fixed; left:14px; top: calc(14px + var(--safe-top));
+      z-index:40; display:flex; flex-direction:column; gap:10px;
       text-shadow: 0 8px 18px rgba(0,0,0,.55);
       pointer-events:auto;
     }
     .saveRow{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:rgba(255,255,255,.92);
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; color:rgba(255,255,255,.92);
       user-select:none;
     }
     .pillBtn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 14px;
-      border-radius:999px;
+      display:inline-flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px 14px; border-radius:999px;
       background: linear-gradient(90deg, var(--pink), var(--pink2));
       border:1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow);
-      font-weight:900;
-      font-size:13px;
+      font-weight:900; font-size:13px;
       -webkit-tap-highlight-color: transparent;
-      user-select:none;
-      text-decoration:none;
-      color:#fff;
+      user-select:none; text-decoration:none; color:#fff;
       width:min(320px, 78vw);
-      animation:pulse 2s infinite;
     }
     .pillBtn .arrow{ opacity:.9; font-size:16px; }
-    @keyframes pulse{
-      0%{transform:scale(1)}
-      50%{transform:scale(1.05)}
-      100%{transform:scale(1)}
-    }
 
     .limitedText{
-      font-size:12px;
-      color:rgba(255,255,255,.92);
-      line-height:1.35;
-      max-width:min(360px, 86vw);
+      font-size:12px; color:rgba(255,255,255,.92);
+      line-height:1.35; max-width:min(360px, 86vw);
       pointer-events:none;
     }
     .limitedText b{
       background: rgba(0,0,0,.35);
       border:1px solid rgba(255,255,255,.12);
-      padding:2px 6px;
-      border-radius:8px;
-      margin-right:6px;
+      padding:2px 6px; border-radius:8px; margin-right:6px;
     }
 
-    /* view count (任意) */
-    .viewCount{
-      position:fixed;
-      left:14px;
-      top:90px;
-      z-index:40;
-      font-size:12px;
-      color:rgba(255,255,255,.85);
-      background:rgba(0,0,0,.35);
-      padding:4px 8px;
-      border-radius:8px;
-      text-shadow:0 6px 16px rgba(0,0,0,.6);
-      pointer-events:none;
+    /* A: countdown pill */
+    .countDownRow{
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; color:rgba(255,255,255,.92);
+      user-select:none;
     }
+    .countPill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+    }
+    .countPill .dot{
+      width:8px;height:8px;border-radius:999px;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      box-shadow: 0 8px 18px rgba(255,45,117,.25);
+    }
+    .countPill .time{ font-weight:900; letter-spacing:.3px; }
 
     /* ===== Right Rail ===== */
     .rightRail{
-      position:fixed;
-      right:14px;
-      top: 10%;
-      z-index:50;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      align-items:center;
+      position:fixed; right:14px; top: 10%;
+      z-index:50; display:flex; flex-direction:column; gap:14px; align-items:center;
       pointer-events:auto;
     }
     .railBtn{
-      width:48px;height:48px;
-      border-radius:999px;
+      width:48px;height:48px; border-radius:999px;
       background: rgba(0,0,0,.38);
       border:1px solid rgba(255,255,255,.14);
       display:grid;place-items:center;
       box-shadow: var(--shadow);
-      cursor:pointer;
-      user-select:none;
+      cursor:pointer; user-select:none;
       -webkit-tap-highlight-color: transparent;
-      color:#fff;
-      pointer-events:auto;
+      color:#fff; pointer-events:auto;
+      transition: transform .12s ease;
     }
     .railBtn:active{ transform:scale(.98); }
 
-    .profileWrap{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-    }
+    .profileWrap{ display:flex; flex-direction:column; align-items:center; gap:6px; }
     .avatarBtn{
-      width:54px;height:54px;
-      border-radius:999px;
-      overflow:hidden;
+      width:54px;height:54px; border-radius:999px; overflow:hidden;
       border:2px solid rgba(255,255,255,.22);
       box-shadow: var(--shadow);
-      background:#111;
-      cursor:pointer;
-      position:relative;
+      background:#111; cursor:pointer; position:relative;
       -webkit-tap-highlight-color: transparent;
       pointer-events:auto;
     }
-    .avatarBtn img{
-      width:100%;height:100%;
-      object-fit:cover;
-      display:block;
-    }
+    .avatarBtn img{ width:100%;height:100%; object-fit:cover; display:block; }
     .plusBadge{
-      position:absolute;
-      left:50%;
-      bottom:-7px;
-      transform: translateX(-50%);
-      width:22px;height:22px;
-      border-radius:999px;
-      display:grid;place-items:center;
+      position:absolute; left:50%; bottom:-7px; transform: translateX(-50%);
+      width:22px;height:22px; border-radius:999px; display:grid;place-items:center;
       background: linear-gradient(90deg, var(--pink), var(--pink2));
       border:2px solid rgba(0,0,0,.5);
-      font-weight:900;
-      font-size:14px;
-      pointer-events:none;
+      font-weight:900; font-size:14px;
     }
+
     .actionItem{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      font-size:12px;
-      color:rgba(255,255,255,.85);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      font-size:12px; color:rgba(255,255,255,.85);
       text-shadow: 0 8px 18px rgba(0,0,0,.55);
       pointer-events:auto;
     }
     .count{
-      font-weight:900;
-      color:rgba(255,255,255,.80);
+      font-weight:900; color:rgba(255,255,255,.80);
       user-select:none;
-      pointer-events:none;
+      transition: transform .12s ease;
     }
+
+    /* micro animations */
+    .pop{ animation: pop .22s ease; }
+    @keyframes pop{ 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+    .pulse{ animation: pulse .25s ease; }
+    @keyframes pulse{ 0%{transform:scale(1)} 50%{transform:scale(.92)} 100%{transform:scale(1)} }
 
     /* ===== Bottom progress + nav ===== */
     .bottomArea{
-      position:fixed;
-      left:0; right:0;
-      bottom:0;
+      position:fixed; left:0; right:0; bottom:0;
       z-index:45;
       background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
       padding: 10px 12px calc(10px + var(--safe-bottom));
       pointer-events:auto;
     }
     .progressRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-      opacity:.95;
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:10px; opacity:.95;
       user-select:none;
     }
     .playIcon{
-      width:22px;height:22px;
-      display:grid;place-items:center;
-      opacity:.95;
-      cursor:pointer;
+      width:22px;height:22px; display:grid;place-items:center;
+      opacity:.95; cursor:pointer;
       -webkit-tap-highlight-color: transparent;
       pointer-events:auto;
     }
     .progress{
-      flex:1;
-      height:4px;
-      border-radius:999px;
+      flex:1; height:4px; border-radius:999px;
       background: rgba(255,255,255,.20);
-      overflow:hidden;
-      position:relative;
-      cursor:pointer;
+      overflow:hidden; position:relative; cursor:pointer;
       pointer-events:auto;
     }
     .progress > .bar{
-      position:absolute; inset:0 auto 0 0;
-      width:0%;
+      position:absolute; inset:0 auto 0 0; width:0%;
       background: linear-gradient(90deg, var(--pink), var(--pink2));
     }
     .progress > .dot{
-      position:absolute;
-      top:50%;
-      width:10px;height:10px;
-      border-radius:999px;
-      background:#fff;
-      transform: translate(-50%,-50%);
-      left:0%;
+      position:absolute; top:50%;
+      width:10px;height:10px; border-radius:999px; background:#fff;
+      transform: translate(-50%,-50%); left:0%;
       box-shadow: 0 8px 18px rgba(255,255,255,.18);
-      pointer-events:none;
     }
     .time{
-      min-width:92px;
-      text-align:right;
-      font-size:12px;
-      color:rgba(255,255,255,.78);
-      font-variant-numeric: tabular-nums;
+      min-width:88px; text-align:right; font-size:12px;
+      color:rgba(255,255,255,.78); font-variant-numeric: tabular-nums;
       pointer-events:none;
     }
-
     .navBar{
-      display:flex;
-      justify-content:space-around;
-      align-items:flex-end;
-      padding-top:6px;
-      border-top:1px solid rgba(255,255,255,.10);
-      user-select:none;
-      pointer-events:auto;
+      display:flex; justify-content:space-around; align-items:flex-end;
+      padding-top:6px; border-top:1px solid rgba(255,255,255,.10);
+      user-select:none; pointer-events:auto;
     }
     .navItem{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      color:rgba(255,255,255,.80);
-      font-size:11px;
-      width:20%;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      color:rgba(255,255,255,.80); font-size:11px; width:20%;
       -webkit-tap-highlight-color: transparent;
-      cursor:pointer;
-      pointer-events:auto;
+      cursor:pointer; pointer-events:auto;
     }
     .navItem svg{ opacity:.9; }
 
     /* ===== Modal ===== */
     .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      background: rgba(0,0,0,.55);
-      z-index:9999;
-      pointer-events:auto;
+      position:fixed; inset:0; display:none;
+      align-items:center; justify-content:center;
+      padding:16px; background: rgba(0,0,0,.55);
+      z-index:9999; pointer-events:auto;
     }
     .modal.show{ display:flex; }
     .modalCard{
       width:min(520px, 92vw);
-      background:#fff;
-      color:#111;
+      background:#fff; color:#111;
       border-radius:18px;
       padding:18px 18px 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,.35);
@@ -316,48 +248,28 @@
       text-align:center;
     }
     .modalClose{
-      position:absolute;
-      right:12px;
-      top:10px;
-      border:none;
-      background:transparent;
-      font-size:22px;
-      cursor:pointer;
-      color:#666;
+      position:absolute; right:12px; top:10px;
+      border:none; background:transparent;
+      font-size:22px; cursor:pointer; color:#666;
     }
-    .modalTitle{
-      margin:6px 0 8px;
-      font-size:18px;
-      font-weight:900;
-    }
-    .modalText{
-      margin:0 0 14px;
-      color:#555;
-      font-size:13px;
-      line-height:1.6;
-    }
+    .modalTitle{ margin:6px 0 8px; font-size:18px; font-weight:900; }
+    .modalText{ margin:0 0 14px; color:#555; font-size:13px; line-height:1.6; }
     .modalBtn{
       display:inline-block;
-      background: var(--pink);
-      color:#fff;
-      text-decoration:none;
-      font-weight:900;
-      padding:12px 18px;
-      border-radius:999px;
+      background: var(--pink); color:#fff;
+      text-decoration:none; font-weight:900;
+      padding:12px 18px; border-radius:999px;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
     }
     .modalBtn:active{ transform:scale(.99); }
 
-    /* ===== Floating X (右下) ===== */
+    /* ===== Floating X ===== */
     #floatingX{
       position: fixed;
       right: 18px;
       bottom: calc(90px + var(--safe-bottom));
-      width: 60px;
-      height: 60px;
-      border-radius: 999px;
-      overflow: hidden;
+      width: 60px; height: 60px; border-radius: 999px; overflow: hidden;
       z-index: 99999 !important;
       pointer-events: auto !important;
       cursor: pointer;
@@ -365,25 +277,103 @@
       background:#000;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
+      transition: transform .12s ease;
     }
     #floatingX:active{ transform:scale(.98); }
-    #floatingX img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
+    #floatingX img{ width:100%; height:100%; object-fit:cover; display:block; }
+    #floatingX .xMeta{
+      position:absolute; left:50%; bottom:-24px; transform:translateX(-50%);
+      display:flex; gap:8px; font-size:12px; font-weight:900;
+      color:#1da1f2;
+      text-shadow:0 6px 16px rgba(0,0,0,.75);
+      pointer-events:none; white-space:nowrap;
     }
-    #floatingX .xFollowers{
-      position:absolute;
-      left:50%;
-      bottom:-18px;
-      transform:translateX(-50%);
+    #floatingX .xMeta span{
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      padding:2px 6px;
+      border-radius:999px;
+    }
+
+    /* =========================
+       コメント吹き出し（②）
+       ========================= */
+    .commentLayer{
+      position:fixed;
+      left:12px;
+      right:92px; /* 右レールとかぶらない */
+      bottom: calc(132px + var(--safe-bottom));
+      z-index:70;
+      pointer-events:none;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .cmt{
+      width: fit-content;
+      max-width: min(86vw, 520px);
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding:10px 12px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.55);
+      backdrop-filter: blur(2px);
+      transform: translateY(14px);
+      opacity: 0;
+      animation: cmtIn .28s ease forwards;
+    }
+    @keyframes cmtIn{
+      from{ transform: translateY(14px); opacity:0; }
+      to{ transform: translateY(0px); opacity:1; }
+    }
+    .cmtOut{
+      animation: cmtOut .35s ease forwards;
+    }
+    @keyframes cmtOut{
+      from{ transform: translateY(0px); opacity:1; }
+      to{ transform: translateY(-10px); opacity:0; }
+    }
+    .cmtTop{
+      display:flex; align-items:center; gap:8px;
+      margin-bottom:6px;
+    }
+    .cmtAvatar{
+      width:22px;height:22px;border-radius:999px;
+      background: linear-gradient(90deg, rgba(255,45,117,.8), rgba(255,74,160,.8));
+      display:grid; place-items:center;
+      font-weight:900; font-size:12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.45);
+      flex: 0 0 auto;
+    }
+    .cmtName{
       font-size:12px;
       font-weight:900;
-      color:#1da1f2;
-      text-shadow:0 6px 16px rgba(0,0,0,.7);
-      pointer-events:none;
+      color: rgba(255,255,255,.92);
+      letter-spacing:.2px;
       white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 52vw;
+    }
+    .cmtTime{
+      margin-left:auto;
+      font-size:11px;
+      color: rgba(255,255,255,.65);
+      font-variant-numeric: tabular-nums;
+    }
+    .cmtBody{
+      font-size:13px;
+      line-height:1.45;
+      color: rgba(255,255,255,.92);
+      word-break: break-word;
+    }
+    .cmtBody b{
+      color:#fff;
+      background: rgba(255,45,117,.18);
+      border: 1px solid rgba(255,45,117,.22);
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin: 0 2px;
     }
   </style>
 </head>
@@ -391,13 +381,23 @@
 <body>
   <div class="stage">
     <video id="v" playsinline muted preload="metadata">
-      <source id="vsrc" src="./yiBqOk411.mp4" type="video/mp4">
+      <source id="vsrc" src="./video.mp4" type="video/mp4">
     </video>
   </div>
 
   <div class="tapLayer" id="tapLayer" aria-label="tap"></div>
 
-  <!-- 上：保存・期間限定・CTA -->
+  <div class="playOverlay" id="playOverlay" aria-label="play overlay">
+    <div>
+      <div class="btn">
+        <div class="icon">▶</div>
+        <div>タップして再生</div>
+      </div>
+      <div class="sub">自動再生がブロックされています（iPhone/一部ブラウザ）</div>
+    </div>
+  </div>
+
+  <!-- 上 -->
   <div class="topInfo">
     <div class="saveRow">
       <span>★</span><span>保存する</span><span style="opacity:.75;">›</span>
@@ -408,15 +408,19 @@
       <span class="arrow">›</span>
     </a>
 
-    <div class="limitedText" id="limitedText">
-      <b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた
+    <div class="limitedText" id="limitedText"></div>
+
+    <div class="countDownRow">
+      <div class="countPill" id="countPill">
+        <span class="dot"></span>
+        <span>残り</span>
+        <span class="time" id="countDown">--:--:--</span>
+      </div>
+      <span style="opacity:.8;">で終了</span>
     </div>
   </div>
 
-  <!-- 任意：視聴数 -->
-  <div class="viewCount" id="viewCount">👁 4,182,394 回視聴</div>
-
-  <!-- 右：プロフィール＋アクション -->
+  <!-- 右 -->
   <div class="rightRail">
     <div class="railBtn" id="btnShare" title="share" aria-label="share">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -435,17 +439,17 @@
 
     <div class="actionItem">
       <div class="railBtn" id="btnLike" aria-label="like">♡</div>
-      <div class="count" id="likeCount">805</div>
+      <div class="count" id="likeCount">0</div>
     </div>
 
     <div class="actionItem">
       <div class="railBtn" id="btnSave" aria-label="save">🔖</div>
-      <div class="count" id="saveCount">579</div>
+      <div class="count" id="saveCount">0</div>
     </div>
 
     <div class="actionItem">
       <div class="railBtn" id="btnComment" aria-label="comment">💬</div>
-      <div class="count" id="commentCount">180</div>
+      <div class="count" id="commentCount">0</div>
     </div>
 
     <div class="actionItem">
@@ -456,7 +460,10 @@
     <div class="railBtn" id="btnFull" title="fullscreen" aria-label="fullscreen">⛶</div>
   </div>
 
-  <!-- 下：プログレス＋ナビ -->
+  <!-- コメント吹き出しレイヤー（②） -->
+  <div class="commentLayer" id="commentLayer" aria-label="comments"></div>
+
+  <!-- 下 -->
   <div class="bottomArea">
     <div class="progressRow">
       <div class="playIcon" id="btnPlay">▶</div>
@@ -508,61 +515,93 @@
     <div class="modalCard">
       <button class="modalClose" id="modalClose" aria-label="close">×</button>
       <h3 class="modalTitle" id="modalTitle">ようこそゲストさん。</h3>
-      <p class="modalText" id="modalText">
-        アプリがインストールされていません。<br>
-        インストールをしてからお楽しみください。
-      </p>
+      <p class="modalText" id="modalText"></p>
       <a class="modalBtn" id="modalBtn" href="#" rel="noopener">ストアでインストールする</a>
     </div>
   </div>
 
-  <!-- Floating X (右下) -->
+  <!-- Floating X -->
   <div id="floatingX" title="X" aria-label="X">
     <img
       src="./x-logo-studio-letter-x-design-icon-logotype-technology-font-vector.jpg"
       alt="X"
       onerror="this.style.display='none'; this.parentElement.style.display='grid'; this.parentElement.style.placeItems='center'; this.parentElement.style.fontWeight='900'; this.parentElement.textContent='X';"
     >
-    <div class="xFollowers" id="xFollowers">17K</div>
+    <div class="xMeta">
+      <span id="xFollowers">17K</span>
+      <span id="xViews">4M</span>
+    </div>
   </div>
 
   <script>
-    /**
-     * =========================
-     * 設定（ここだけ触ればOK）
-     * =========================
-     */
     const CONFIG = {
-      // 動画（URL変えずに差し替えたいなら「同じファイル名」で上書きが最強）
+      pageTitle: "X player",
       videoSrc: "./yiBqOk411.mp4",
-
-      // CTA（ここを変える）
       ctaUrl: "https://ad-nex.com/u/aiacgdx3w5rq",
-
-      // Xリンク（あなたのID）
       twitterUrl: "https://x.com/tyui33601530",
-
-      // 右のプロフィール画像
       avatarUrl: "./3dc20f42-4632-4455-bd81-33a5c32e1bce.jpg",
 
-      // 表示数
       counts: { like: 805, save: 579, comment: 180 },
-      xFollowersText: "17K",
-      viewCountText: "👁 4,182,394 回視聴",
 
-      // 上の期間限定テキスト
+      countdownSeconds: 24 * 60 * 60,
       limitedTextHtml: "<b>24時間限定</b><b>3日間だけ無料プレゼント</b> 🎁 この映像を見つけた",
 
-      // ポップアップ
-      showPopupOnLoad: true,
-      popupOnLoadDelayMs: 400,
+      xFollowerCount: 17000,
+      xViewCount: 4000000,
+
       popupOnEnded: true,
       popupDelayMs: 250,
-
-      // 任意：途中停止（0で無効）
+      showPopupOnLoad: true,
+      popupOnLoadDelayMs: 400,
       stopAtSeconds: 0,
 
-      // 文言
+      bump: {
+        likeMin: 1, likeMax: 6,
+        saveMin: 0, saveMax: 2,
+        commentMin: 0, commentMax: 2,
+        autoEveryMs: 3800,
+        autoChance: 0.55
+      },
+
+      /* ② コメント吹き出し設定 */
+      comments: {
+        enabled: true,
+        minIntervalMs: 2200,
+        maxIntervalMs: 5200,
+        maxOnScreen: 2,
+        lifeMs: 3200,
+        // 「ごくひちゃん」系の表示名（ここ自由に増やせる）
+        names: [
+          "ごくひちゃん推し",
+          "ごくひ民",
+          "ごくひちゃん界隈",
+          "ごくひちゃんファン",
+          "ごくひちゃん応援隊",
+          "ごくひちゃん🩷",
+          "ごくひちゃんしか勝たん",
+          "ごくひちゃんガチ勢",
+          "ごくひちゃん神",
+          "ごくひちゃん好き",
+          "ごくひちゃん見守り隊",
+          "ごくひちゃんの人"
+        ],
+        // コメント文（ここも自由に差し替えOK）
+        messages: [
+          "ごくひちゃん、今日もかわいすぎる…",
+          "これ最後まで見たら<b>続き</b>ある？",
+          "ごくひちゃんの<b>踊り</b>めっちゃ好き",
+          "今の一瞬で心持ってかれた",
+          "ごくひちゃんの<b>雰囲気</b>強い…",
+          "ここの動きやばい、保存した",
+          "まって無限に見れる",
+          "ごくひちゃんってこういうのもいけるの！？",
+          "ここからが本番ってこと？",
+          "ごくひちゃんの<b>破壊力</b>えぐい",
+          "あと何本あるの？",
+          "ごくひちゃんの続き、どこで見れる？"
+        ]
+      },
+
       modalCopy: {
         defaultTitle: "ようこそゲストさん。",
         defaultText: "アプリがインストールされていません。<br>インストールをしてからお楽しみください。",
@@ -573,139 +612,96 @@
       }
     };
 
-    // ===== elements =====
-    const v = document.getElementById("v");
-    const vsrc = document.getElementById("vsrc");
-    const tapLayer = document.getElementById("tapLayer");
+    const $ = (id) => document.getElementById(id);
 
-    const bar = document.getElementById("bar");
-    const dot = document.getElementById("dot");
-    const timeEl = document.getElementById("time");
-    const progress = document.getElementById("progress");
-    const btnPlay = document.getElementById("btnPlay");
+    function formatCount(n){
+      const num = Number(n);
+      if (!isFinite(num)) return String(n ?? "");
+      const abs = Math.abs(num);
+      if (abs >= 1_000_000_000) return (num/1_000_000_000).toFixed(num%1_000_000_000===0?0:1) + "B";
+      if (abs >= 1_000_000) return (num/1_000_000).toFixed(num%1_000_000===0?0:1) + "M";
+      if (abs >= 1_000) return (num/1_000).toFixed(num%1_000===0?0:1) + "K";
+      return String(num);
+    }
+    function randInt(min, max){
+      const a = Number(min), b = Number(max);
+      const lo = Math.min(a,b), hi = Math.max(a,b);
+      return Math.floor(lo + Math.random()*(hi-lo+1));
+    }
+    function addPop(el){ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+    function addPulse(el){ el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); }
 
-    const btnShare = document.getElementById("btnShare");
-    const btnProfile = document.getElementById("btnProfile");
-    const avatarImg = document.getElementById("avatarImg");
+    // elements
+    const v = $("v");
+    const vsrc = $("vsrc");
+    const tapLayer = $("tapLayer");
+    const playOverlay = $("playOverlay");
 
-    const btnLike = document.getElementById("btnLike");
-    const btnSave = document.getElementById("btnSave");
-    const btnComment = document.getElementById("btnComment");
-    const btnSound = document.getElementById("btnSound");
-    const soundLabel = document.getElementById("soundLabel");
-    const btnFull = document.getElementById("btnFull");
+    const bar = $("bar");
+    const dot = $("dot");
+    const timeEl = $("time");
+    const progress = $("progress");
+    const btnPlay = $("btnPlay");
 
-    const likeCount = document.getElementById("likeCount");
-    const saveCount = document.getElementById("saveCount");
-    const commentCount = document.getElementById("commentCount");
+    const btnShare = $("btnShare");
+    const btnProfile = $("btnProfile");
+    const avatarImg = $("avatarImg");
+    const floatingX = $("floatingX");
 
-    const topCta = document.getElementById("topCta");
-    const limitedText = document.getElementById("limitedText");
+    const btnLike = $("btnLike");
+    const btnSave = $("btnSave");
+    const btnComment = $("btnComment");
+    const btnSound = $("btnSound");
+    const soundLabel = $("soundLabel");
+    const btnFull = $("btnFull");
 
-    const navHome = document.getElementById("navHome");
-    const navBoost = document.getElementById("navBoost");
-    const navRank = document.getElementById("navRank");
-    const navMsg = document.getElementById("navMsg");
-    const navAccount = document.getElementById("navAccount");
+    const likeCountEl = $("likeCount");
+    const saveCountEl = $("saveCount");
+    const commentCountEl = $("commentCount");
 
-    const modal = document.getElementById("modal");
-    const modalClose = document.getElementById("modalClose");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalText = document.getElementById("modalText");
-    const modalBtn = document.getElementById("modalBtn");
+    const topCta = $("topCta");
+    const limitedText = $("limitedText");
 
-    const floatingX = document.getElementById("floatingX");
-    const xFollowers = document.getElementById("xFollowers");
-    const viewCount = document.getElementById("viewCount");
+    const navHome = $("navHome");
+    const navBoost = $("navBoost");
+    const navRank = $("navRank");
+    const navMsg = $("navMsg");
+    const navAccount = $("navAccount");
 
-    // ===== init UI =====
-    likeCount.textContent = CONFIG.counts.like;
-    saveCount.textContent = CONFIG.counts.save;
-    commentCount.textContent = CONFIG.counts.comment;
+    const modal = $("modal");
+    const modalClose = $("modalClose");
+    const modalTitle = $("modalTitle");
+    const modalText = $("modalText");
+    const modalBtn = $("modalBtn");
 
+    const countDownEl = $("countDown");
+    const countPill = $("countPill");
+
+    const xFollowers = $("xFollowers");
+    const xViews = $("xViews");
+
+    const commentLayer = $("commentLayer");
+
+    // init
+    document.title = CONFIG.pageTitle || document.title;
     limitedText.innerHTML = CONFIG.limitedTextHtml;
     topCta.href = CONFIG.ctaUrl;
     modalBtn.href = CONFIG.ctaUrl;
 
-    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()){
-      avatarImg.src = CONFIG.avatarUrl.trim();
-    }
-    xFollowers.textContent = CONFIG.xFollowersText || "17K";
-    viewCount.textContent = CONFIG.viewCountText || viewCount.textContent;
+    if (CONFIG.avatarUrl && CONFIG.avatarUrl.trim()) avatarImg.src = CONFIG.avatarUrl.trim();
 
-    // ===== video =====
-    vsrc.src = CONFIG.videoSrc;
-    v.load();
+    let likeCount = Number(CONFIG.counts.like) || 0;
+    let saveCount = Number(CONFIG.counts.save) || 0;
+    let commentCount = Number(CONFIG.counts.comment) || 0;
 
-    // iPhone対策：初期ミュートで再生しやすく
-    v.muted = true;
-    v.playsInline = true;
-    v.preload = "metadata";
+    likeCountEl.textContent = likeCount;
+    saveCountEl.textContent = saveCount;
+    commentCountEl.textContent = commentCount;
 
-    const tryPlay = () => v.play().catch(()=>{});
+    xFollowers.textContent = formatCount(CONFIG.xFollowerCount);
+    xViews.textContent = formatCount(CONFIG.xViewCount);
 
-    // ユーザー操作で再生を確実に（ただしUI操作の邪魔にならないようstopPropagationしてる）
-    document.addEventListener("click", tryPlay, { passive:true });
-
-    function fmtTime(sec){
-      if(!isFinite(sec) || sec < 0) return "0:00";
-      const m = Math.floor(sec/60);
-      const s = Math.floor(sec%60);
-      return `${m}:${String(s).padStart(2,"0")}`;
-    }
-
-    function setProgress(){
-      const dur = v.duration || 0;
-      const cur = v.currentTime || 0;
-      const pct = dur ? (cur/dur)*100 : 0;
-      bar.style.width = `${pct}%`;
-      dot.style.left = `${pct}%`;
-      timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
-      btnPlay.textContent = v.paused ? "▶" : "Ⅱ";
-    }
-
-    v.addEventListener("loadedmetadata", () => {
-      setProgress();
-      // 初回の自動再生を試す（失敗してもOK）
-      tryPlay();
-    });
-
-    v.addEventListener("timeupdate", () => {
-      setProgress();
-      if (CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds) v.pause();
-    });
-
-    v.addEventListener("ended", () => {
-      setProgress();
-      if (CONFIG.popupOnEnded){
-        setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
-      }
-    });
-
-    // tap play/pause（動画部分タップ）
-    tapLayer.addEventListener("click", () => {
-      if (v.paused) tryPlay();
-      else v.pause();
-    });
-
-    // play icon
-    btnPlay.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (v.paused) tryPlay();
-      else v.pause();
-    });
-
-    // seek
-    progress.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const rect = progress.getBoundingClientRect();
-      const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
-      const pct = rect.width ? x / rect.width : 0;
-      const dur = v.duration || 0;
-      if (dur) v.currentTime = dur * pct;
-    });
-
-    // ===== modal =====
+    // modal
     function openModal(kind="default"){
       const c = CONFIG.modalCopy;
       modalTitle.textContent = c.defaultTitle;
@@ -720,59 +716,160 @@
       modalBtn.href = CONFIG.ctaUrl;
       modal.classList.add("show");
     }
-    function closeModal(){
-      modal.classList.remove("show");
-    }
+    function closeModal(){ modal.classList.remove("show"); }
     modalClose.addEventListener("click", (e)=>{ e.stopPropagation(); closeModal(); });
     modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
 
-    // ===== right rail actions =====
-    const stopAndOpen = (kind) => (e) => { e.stopPropagation(); openModal(kind); };
+    if (CONFIG.showPopupOnLoad){
+      window.addEventListener("load", () => {
+        setTimeout(() => openModal("default"), CONFIG.popupOnLoadDelayMs || 0);
+      });
+    }
 
-    btnLike.addEventListener("click", stopAndOpen("like"));
-    btnSave.addEventListener("click", stopAndOpen("save"));
-    btnComment.addEventListener("click", stopAndOpen("comment"));
+    // video
+    vsrc.src = CONFIG.videoSrc;
+    v.load();
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = "metadata";
 
-    btnSound.addEventListener("click", (e) => {
+    function fmtTime(sec){
+      if(!isFinite(sec) || sec < 0) return "0:00";
+      const m = Math.floor(sec/60);
+      const s = Math.floor(sec%60);
+      return `${m}:${String(s).padStart(2,"0")}`;
+    }
+    function setProgress(){
+      const dur = v.duration || 0;
+      const cur = v.currentTime || 0;
+      const pct = dur ? (cur/dur)*100 : 0;
+      bar.style.width = `${pct}%`;
+      dot.style.left = `${pct}%`;
+      timeEl.textContent = `${fmtTime(cur)} / ${fmtTime(dur)}`;
+      btnPlay.textContent = v.paused ? "▶" : "Ⅱ";
+    }
+    async function tryPlay(){
+      try{
+        await v.play();
+        playOverlay.classList.remove("show");
+        return true;
+      }catch(_){
+        playOverlay.classList.add("show");
+        return false;
+      }
+    }
+    const firstGesture = async () => {
+      document.removeEventListener("pointerdown", firstGesture, {capture:true});
+      document.removeEventListener("touchstart", firstGesture, {capture:true});
+      await tryPlay();
+    };
+    document.addEventListener("pointerdown", firstGesture, {capture:true, passive:true});
+    document.addEventListener("touchstart", firstGesture, {capture:true, passive:true});
+    playOverlay.addEventListener("click", (e)=>{ e.stopPropagation(); tryPlay(); });
+
+    v.addEventListener("loadedmetadata", () => { setProgress(); tryPlay(); });
+    v.addEventListener("timeupdate", () => {
+      setProgress();
+      if (CONFIG.stopAtSeconds > 0 && v.currentTime >= CONFIG.stopAtSeconds) v.pause();
+    });
+    v.addEventListener("ended", () => {
+      setProgress();
+      if (CONFIG.popupOnEnded) setTimeout(() => openModal("default"), CONFIG.popupDelayMs);
+    });
+
+    tapLayer.addEventListener("click", async () => {
+      if (v.paused) await tryPlay(); else v.pause();
+      setProgress();
+    });
+    btnPlay.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (v.paused) await tryPlay(); else v.pause();
+      setProgress();
+    });
+    progress.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const rect = progress.getBoundingClientRect();
+      const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+      const pct = rect.width ? x / rect.width : 0;
+      const dur = v.duration || 0;
+      if (dur) v.currentTime = dur * pct;
+    });
+
+    v.addEventListener("error", () => {
+      alert("動画の読み込みに失敗しました。ファイル名/配置(同フォルダ)/形式(H.264)を確認してね。");
+    });
+
+    // countdown
+    let remaining = Number(CONFIG.countdownSeconds) || 0;
+    function fmtHMS(s){
+      s = Math.max(0, Math.floor(s));
+      const h = Math.floor(s/3600);
+      const m = Math.floor((s%3600)/60);
+      const ss = s%60;
+      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+    }
+    function tickCountdown(){
+      countDownEl.textContent = fmtHMS(remaining);
+      if (remaining <= 600) addPop(countPill);
+      remaining = Math.max(0, remaining - 1);
+    }
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+
+    // bump counts
+    function bump(kind){
+      if (kind === "like"){
+        likeCount += randInt(CONFIG.bump.likeMin, CONFIG.bump.likeMax);
+        likeCountEl.textContent = likeCount;
+        addPop(likeCountEl); addPulse(btnLike);
+      }
+      if (kind === "save"){
+        saveCount += randInt(CONFIG.bump.saveMin, CONFIG.bump.saveMax);
+        saveCountEl.textContent = saveCount;
+        addPop(saveCountEl); addPulse(btnSave);
+      }
+      if (kind === "comment"){
+        commentCount += randInt(CONFIG.bump.commentMin, CONFIG.bump.commentMax);
+        commentCountEl.textContent = commentCount;
+        addPop(commentCountEl); addPulse(btnComment);
+      }
+    }
+    btnLike.addEventListener("click", (e)=>{ e.stopPropagation(); bump("like"); setTimeout(()=>openModal("like"), 180); });
+    btnSave.addEventListener("click", (e)=>{ e.stopPropagation(); bump("save"); setTimeout(()=>openModal("save"), 180); });
+    btnComment.addEventListener("click", (e)=>{ e.stopPropagation(); bump("comment"); setTimeout(()=>openModal("comment"), 180); });
+
+    if (CONFIG.bump.autoEveryMs > 0){
+      setInterval(() => {
+        if (v.paused) return;
+        if (Math.random() > CONFIG.bump.autoChance) return;
+        const r = Math.random();
+        if (r < 0.65) bump("like");
+        else if (r < 0.85) bump("save");
+        else bump("comment");
+      }, CONFIG.bump.autoEveryMs);
+    }
+
+    // other actions
+    btnSound.addEventListener("click", async (e) => {
       e.stopPropagation();
       v.muted = !v.muted;
       soundLabel.textContent = v.muted ? "mute" : "sound";
       btnSound.textContent = v.muted ? "🔇" : "🔊";
-      if (!v.muted) tryPlay();
+      if (!v.muted) await tryPlay();
     });
-
     btnFull.addEventListener("click", (e) => {
       e.stopPropagation();
       if (document.fullscreenElement) document.exitFullscreen?.();
       else v.requestFullscreen?.();
     });
-
-    // share
     btnShare.addEventListener("click", async (e) => {
       e.stopPropagation();
       const shareData = { title: document.title, text: "Check this out", url: location.href };
-      try{
-        if (navigator.share) await navigator.share(shareData);
-        else openModal("default");
-      }catch(_){}
+      try{ if (navigator.share) await navigator.share(shareData); else openModal("default"); }catch(_){}
     });
+    btnProfile.addEventListener("click", (e) => { e.stopPropagation(); location.href = CONFIG.twitterUrl; });
+    floatingX.addEventListener("click", (e)=>{ e.stopPropagation(); location.href = CONFIG.twitterUrl; });
 
-    // profile -> X
-    btnProfile.addEventListener("click", (e) => {
-      e.stopPropagation();
-      location.href = CONFIG.twitterUrl;
-    });
-
-    // floating X -> X
-    floatingX.addEventListener("click", (e)=> {
-      e.stopPropagation();
-      location.href = CONFIG.twitterUrl;
-    });
-
-    // top CTA (普通に遷移)
-    topCta.addEventListener("click", (e)=>{ /* no-op */ });
-
-    // bottom nav -> modal
     const navClick = (e) => { e.stopPropagation(); openModal("nav"); };
     navHome.addEventListener("click", navClick);
     navBoost.addEventListener("click", navClick);
@@ -780,20 +877,73 @@
     navMsg.addEventListener("click", navClick);
     navAccount.addEventListener("click", navClick);
 
-    // 初期
-    setProgress();
+    topCta.addEventListener("click", (e)=>{ /* default */ });
 
-    // 初回ポップアップ（×で消せる）
-    if (CONFIG.showPopupOnLoad){
-      window.addEventListener("load", () => {
-        setTimeout(() => openModal("default"), CONFIG.popupOnLoadDelayMs || 0);
-      });
+    // =========================
+    // ② コメント吹き出しロジック
+    // =========================
+    function relTime(){
+      // 2〜59秒前っぽく見せる
+      const s = randInt(2, 59);
+      return `${s}秒前`;
+    }
+    function pick(arr){
+      return arr[Math.floor(Math.random()*arr.length)];
+    }
+    function initials(name){
+      // アバター丸の中の1文字
+      // 例: ごくひちゃん推し -> ご
+      return (name && name.trim().length) ? name.trim().slice(0,1) : "G";
     }
 
-    // 動画エラー
-    v.addEventListener("error", () => {
-      alert("動画の読み込みに失敗しました。ファイル名/配置/形式(H.264)を確認してね。");
-    });
+    function spawnComment(){
+      if (!CONFIG.comments.enabled) return;
+      // 再生中だけ
+      if (v.paused) return;
+
+      // 最大表示数
+      const items = commentLayer.querySelectorAll(".cmt");
+      if (items.length >= CONFIG.comments.maxOnScreen) {
+        // 古いのを消す
+        items[0]?.classList.add("cmtOut");
+        setTimeout(()=>items[0]?.remove(), 320);
+      }
+
+      const name = pick(CONFIG.comments.names);
+      const msg = pick(CONFIG.comments.messages);
+
+      const el = document.createElement("div");
+      el.className = "cmt";
+      el.innerHTML = `
+        <div class="cmtTop">
+          <div class="cmtAvatar">${initials(name)}</div>
+          <div class="cmtName">${name}</div>
+          <div class="cmtTime">${relTime()}</div>
+        </div>
+        <div class="cmtBody">${msg}</div>
+      `;
+      commentLayer.appendChild(el);
+
+      // しばらくしたら自然に消す
+      setTimeout(() => {
+        el.classList.add("cmtOut");
+        setTimeout(()=> el.remove(), 360);
+      }, CONFIG.comments.lifeMs);
+    }
+
+    function scheduleComments(){
+      const min = CONFIG.comments.minIntervalMs;
+      const max = CONFIG.comments.maxIntervalMs;
+      const next = randInt(min, max);
+      setTimeout(() => {
+        spawnComment();
+        scheduleComments();
+      }, next);
+    }
+    if (CONFIG.comments.enabled) scheduleComments();
+
+    // 初期
+    setProgress();
   </script>
 </body>
 </html>
